@@ -1,0 +1,34 @@
+/* MapTiler specific styles - loaded only on map pages */
+/* This reduces unused CSS on non-map pages */
+
+/* Hide MapTiler attribution/watermark */
+.maplibregl-ctrl-attrib,
+.maptiler-attribution,
+.mapboxgl-ctrl-attrib,
+.maplibregl-ctrl-bottom-right,
+.maplibregl-ctrl-bottom-left,
+.maplibregl-ctrl-attrib-inner {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* Hide any attribution links */
+.maplibregl-ctrl a,
+.mapboxgl-ctrl a {
+  display: none !important;
+}
+
+/* Map container optimization */
+.maplibregl-map,
+.mapboxgl-map {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Optimize map controls */
+.maplibregl-ctrl-group,
+.mapboxgl-ctrl-group {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
