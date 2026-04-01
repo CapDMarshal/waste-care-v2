@@ -17,13 +17,13 @@ export function useUpload({ reportData, setAiValidation }: UseUploadProps) {
   const handleUpload = async () => {
     let progressInterval: NodeJS.Timeout | null = null;
     let completeProgress: NodeJS.Timeout | null = null;
-    
+
     try {
       // Reset state
       setError(null);
       setProgress(0);
       setUploading(true);
-      
+
       // Validate only required data (location and photos)
       if (!reportData.location || reportData.photos.length === 0) {
         throw new Error('Data tidak lengkap');
@@ -53,10 +53,10 @@ export function useUpload({ reportData, setAiValidation }: UseUploadProps) {
 
       // Add timeout for submit report (120 seconds for AI processing)
       const submitPromise = submitReport(submitParams);
-      const timeoutPromise = new Promise<never>((_, reject) => 
+      const timeoutPromise = new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('Request timeout setelah 120 detik. Server mungkin sedang sibuk, coba lagi nanti.')), 120000)
       );
-      
+
       const result = await Promise.race([submitPromise, timeoutPromise]);
 
       // Clear progress interval after successful response
@@ -64,10 +64,10 @@ export function useUpload({ reportData, setAiValidation }: UseUploadProps) {
         clearInterval(progressInterval);
         progressInterval = null;
       }
-      
+
       // Ensure we're at least at 30% before proceeding
       if (progress < 30) {
-        setProgress(30);
+        setProgress(70);
       }
 
       // Check if upload was successful
@@ -78,7 +78,7 @@ export function useUpload({ reportData, setAiValidation }: UseUploadProps) {
             'Server sedang memproses terlalu lama. Ini biasanya terjadi saat server sibuk.\n\nSilakan coba lagi dalam beberapa saat.'
           );
         }
-        
+
         // Handle validation failure (not waste)
         if (result.validation && !result.validation.isWaste) {
           const reason = result.validation.reason || 'Gambar tidak terdeteksi sebagai sampah';
@@ -86,34 +86,34 @@ export function useUpload({ reportData, setAiValidation }: UseUploadProps) {
             `${result.message || 'Validasi gambar gagal'}\n\nAlasan: ${reason}`
           );
         }
-        
+
         // Handle parsing errors with more specific messages
         const errorMsg = result.error || result.message || 'Gagal mengunggah laporan';
-        
+
         if (errorMsg.includes('AI validation failed - empty response')) {
           throw new Error(
             'Validasi AI gagal. Mohon coba lagi dengan foto yang lebih jelas dan terang.'
           );
         }
-        
+
         if (errorMsg.includes('Failed to parse Gemini AI response')) {
           throw new Error(
             'Terjadi kesalahan saat validasi gambar oleh AI. Mohon coba lagi dengan foto yang lebih jelas.'
           );
         }
-        
+
         if (errorMsg.includes('Gemini AI validation failed')) {
           throw new Error(
             'Layanan validasi AI sedang bermasalah. Mohon coba lagi nanti.'
           );
         }
-        
+
         if (errorMsg.includes('Bucket not found')) {
           throw new Error(
             'Kesalahan konfigurasi storage. Mohon hubungi administrator.'
           );
         }
-        
+
         throw new Error(errorMsg);
       }
 
@@ -148,10 +148,10 @@ export function useUpload({ reportData, setAiValidation }: UseUploadProps) {
         clearInterval(completeProgress);
         completeProgress = null;
       }
-      
+
       // Provide more user-friendly error messages
       let errorMessage = 'Terjadi kesalahan saat mengunggah';
-      
+
       if (err instanceof Error) {
         if (err.message.includes('timeout')) {
           errorMessage = 'Koneksi terlalu lambat atau server sedang sibuk.\n\nSaran:\n• Periksa koneksi internet Anda\n• Coba gunakan foto dengan ukuran lebih kecil\n• Coba lagi beberapa saat';
@@ -165,7 +165,7 @@ export function useUpload({ reportData, setAiValidation }: UseUploadProps) {
           errorMessage = err.message;
         }
       }
-      
+
       setError(errorMessage);
       setUploading(false);
       setProgress(0);

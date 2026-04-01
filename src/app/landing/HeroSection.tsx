@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { 
-  fetchOverallStatistics, 
+import {
+  fetchOverallStatistics,
   fetchWasteTypeStatistics,
   type OverallStatistics,
   type WasteTypeStatistics
@@ -20,6 +20,10 @@ export default function HeroSection() {
     inorganic: 0,
     hazardous: 0,
     mixed: 0,
+    riskNone: 0,
+    riskLow: 0,
+    riskMedium: 0,
+    riskHigh: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -131,7 +135,7 @@ export default function HeroSection() {
                   </div>
                 ) : (
                   <div className="text-3xl font-bold mb-1">
-                    {overallStats.totalParticipants > 1000 
+                    {overallStats.totalParticipants > 1000
                       ? `${(overallStats.totalParticipants / 1000).toFixed(1)}K+`
                       : overallStats.totalParticipants.toLocaleString('id-ID')
                     }

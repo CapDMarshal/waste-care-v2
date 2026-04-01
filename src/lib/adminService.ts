@@ -5,13 +5,76 @@ import { Database } from '../types/database.types'
 
 type ReportStatus = Database['public']['Enums']['report_status_enum']
 
+function getErrorInfo(error: unknown) {
+  const err = error as {
+    message?: string
+    details?: string
+    hint?: string
+    code?: string
+  }
+
+  return {
+    message: err?.message,
+    details: err?.details,
+    hint: err?.hint,
+    code: err?.code,
+  }
+}
+
+async function callAdminEdge<T>(path: 'get-admin-statistics' | 'get-pending-reports') {
+  const supabase = await createClient()
+  const { data: sessionData } = await supabase.auth.getSession()
+  const accessToken = sessionData.session?.access_token
+
+  if (!accessToken) return null
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !anonKey) return null
+
+  const response = await fetch(`${supabaseUrl}/functions/v1/${path}`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      apikey: anonKey,
+      'Content-Type': 'application/json',
+    },
+    cache: 'no-store',
+  })
+
+  const payload = await response.json().catch(() => null)
+  if (!response.ok || !payload?.success) return null
+
+  return payload.data as T
+}
+
 export async function getAdminStatistics() {
   const supabase = await createClient()
   const { data, error } = await supabase.rpc('get_admin_statistics').single()
 
   if (error) {
-    console.error('Error fetching admin statistics:', error)
-    return null
+    console.error('Error fetching admin statistics (rpc):', getErrorInfo(error))
+
+    const fallback = await callAdminEdge<{
+      pending_count: number
+      approved_count: number
+      rejected_count: number
+      hazardous_count: number
+      total_count: number
+    }>('get-admin-statistics')
+
+    if (fallback) {
+      return fallback
+    }
+
+    return {
+      pending_count: 0,
+      approved_count: 0,
+      rejected_count: 0,
+      hazardous_count: 0,
+      total_count: 0,
+    }
   }
 
   return data
@@ -22,7 +85,13 @@ export async function getPendingReports() {
   const { data, error } = await supabase.rpc('get_pending_reports')
 
   if (error) {
-    console.error('Error fetching pending reports:', error)
+    console.error('Error fetching pending reports (rpc):', getErrorInfo(error))
+
+    const fallback = await callAdminEdge<any[]>('get-pending-reports')
+    if (fallback) {
+      return fallback
+    }
+
     return []
   }
 
@@ -67,14 +136,7 @@ export async function getReportDetailAdmin(reportId: number) {
 
   const { data, error } = await supabase
     .from('reports')
-    .select(`
-      *,
-      profiles:user_id (
-        id,
-        exp,
-        role
-      )
-    `)
+    .select('*')
     .eq('id', reportId)
     .single()
 

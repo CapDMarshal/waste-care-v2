@@ -1,0 +1,11 @@
+.next/types/validator.ts(42,39): error TS2307: Cannot find module '../../app/page.js' or its corresponding type declarations.
+.next/types/validator.ts(57,39): error TS2307: Cannot find module '../../app/layout.js' or its corresponding type declarations.
+src/app/admin/page.tsx(38,71): error TS2339: Property 'pending_count' does not exist on type '{}'.
+src/app/admin/page.tsx(47,71): error TS2339: Property 'approved_count' does not exist on type '{}'.
+src/app/admin/page.tsx(56,71): error TS2339: Property 'hazardous_count' does not exist on type '{}'.
+src/app/admin/page.tsx(65,71): error TS2339: Property 'rejected_count' does not exist on type '{}'.
+src/app/landing/HeroSection.tsx(17,69): error TS2345: Argument of type '{ total: number; organic: number; inorganic: number; hazardous: number; mixed: number; }' is not assignable to parameter of type 'WasteTypeStatistics | (() => WasteTypeStatistics)'.
+  Type '{ total: number; organic: number; inorganic: number; hazardous: number; mixed: number; }' is missing the following properties from type 'WasteTypeStatistics': riskNone, riskLow, riskMedium, riskHigh
+src/app/lapor/konfirmasi-foto/usePhotoManagement.ts(3,10): error TS2305: Module '"@/lib/reportService"' has no exported member 'resizeImage'.
+src/hooks/useCampaigns.ts(7,8): error TS2307: Cannot find module '@/lib/campaignService' or its corresponding type declarations.
+src/hooks/useCampaigns.ts(61,36): error TS7006: Parameter 'c' implicitly has an 'any' type.

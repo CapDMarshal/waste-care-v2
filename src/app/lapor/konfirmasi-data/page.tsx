@@ -32,6 +32,7 @@ export default function KonfirmasiDataPage() {
             wasteType={displayData.wasteType}
             wasteVolume={displayData.wasteVolume}
             locationCategory={displayData.locationCategory}
+            hazardRisk={displayData.hazardRisk}
             notes={displayData.notes}
           />
         </div>

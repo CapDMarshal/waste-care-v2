@@ -16,7 +16,7 @@ export interface Campaign {
   wasteTypes: string[];
   estimatedVolume?: string;
   reportIds?: number[];
-  isJoined?: boolean; // Apakah user sudah join campaign ini
+  isJoined?: boolean;
 }
 
 export interface CampaignFilters {
@@ -25,7 +25,6 @@ export interface CampaignFilters {
   wasteType?: string;
 }
 
-// Database types
 export interface CampaignRow {
   id: number;
   title: string;

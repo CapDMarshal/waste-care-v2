@@ -103,6 +103,7 @@ export default async function AdminDashboardPage() {
                       src={report.image_urls[0]} 
                       alt="Bukti foto"
                       fill
+                      sizes="80px"
                       className="object-cover"
                     />
                   ) : null}

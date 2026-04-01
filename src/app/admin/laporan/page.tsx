@@ -92,6 +92,7 @@ export default async function AdminLaporanPage({
                     src={report.image_urls[0]} 
                     alt="Foto laporan"
                     fill
+                    sizes="(max-width: 768px) 100vw, 128px"
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 ) : null}

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
-import { 
+import {
   getReportsForMap,
   type MapReport
 } from '@/lib/provinceService';
@@ -14,7 +14,7 @@ import {
 // Dynamically import MapTilerMap to avoid SSR issues
 const MapTilerMap = dynamic(
   () => import('@/components/shared/MapTilerMap'),
-  { 
+  {
     ssr: false,
     loading: () => (
       <div className="h-[600px] flex items-center justify-center">
@@ -35,7 +35,11 @@ export default function MapsSection() {
     organic: 0,
     inorganic: 0,
     hazardous: 0,
-    mixed: 0
+    mixed: 0,
+    riskNone: 0,
+    riskLow: 0,
+    riskMedium: 0,
+    riskHigh: 0
   });
 
   useEffect(() => {
@@ -192,8 +196,8 @@ export default function MapsSection() {
             <div>
               <h3 className="font-semibold text-blue-900 mb-1 text-base">Informasi Peta</h3>
               <p className="text-sm text-blue-800">
-                Setiap marker pada peta menunjukkan lokasi yang telah dilaporkan memiliki masalah sampah. 
-                Klik pada marker untuk melihat detail laporan. Bergabunglah dengan WasteCare untuk melaporkan 
+                Setiap marker pada peta menunjukkan lokasi yang telah dilaporkan memiliki masalah sampah.
+                Klik pada marker untuk melihat detail laporan. Bergabunglah dengan WasteCare untuk melaporkan
                 dan membantu membersihkan lingkungan di sekitar Anda.
               </p>
             </div>

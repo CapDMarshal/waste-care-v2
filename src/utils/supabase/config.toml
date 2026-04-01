@@ -1,0 +1,13 @@
+project_id = "lwkcfxieacntzgpnyxgk"
+
+[functions.submit-report]
+enabled = true
+
+[functions.get-nearby-reports]
+enabled = true
+
+[functions.get-admin-statistics]
+enabled = true
+
+[functions.get-pending-reports]
+enabled = true

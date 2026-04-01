@@ -71,6 +71,7 @@ export default async function AdminReportDetailPage({
                 src={report.image_urls[0]}
                 alt="Bukti foto"
                 fill
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover"
               />
             ) : (
@@ -83,7 +84,7 @@ export default async function AdminReportDetailPage({
             <div className="flex gap-2">
               {report.image_urls.slice(1).map((imgUrl: string, i: number) => (
                 <div key={i} className="w-16 h-16 relative rounded-lg overflow-hidden border border-gray-200">
-                  <Image src={imgUrl} alt={`Foto ${i+2}`} fill className="object-cover" />
+                  <Image src={imgUrl} alt={`Foto ${i+2}`} fill sizes="64px" className="object-cover" />
                 </div>
               ))}
             </div>
