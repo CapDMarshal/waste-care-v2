@@ -41,15 +41,26 @@ export async function getNearbyReports(
   try {
     const { latitude, longitude, radiusKm = 10, limit = 50 } = params;
 
+    const withTimeout = async <T,>(run: () => Promise<T>, timeoutMs = 12000): Promise<T> => {
+      return Promise.race([
+        run(),
+        new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('Request timeout saat mengambil laporan terdekat.')), timeoutMs);
+        }),
+      ]);
+    };
+
     // Call the RPC function directly — this is exactly what the Edge Function
     // does internally (it just proxies to this same RPC with the anon key).
     // Bypassing the Edge Function avoids all gateway auth header complexity.
-    const { data, error } = await supabase.rpc('get_nearby_reports', {
-      p_latitude: latitude,
-      p_longitude: longitude,
-      p_radius_meters: radiusKm * 1000,
-      p_limit: limit,
-    });
+    const { data, error } = await withTimeout(() =>
+      supabase.rpc('get_nearby_reports', {
+        p_latitude: latitude,
+        p_longitude: longitude,
+        p_radius_meters: radiusKm * 1000,
+        p_limit: limit,
+      })
+    );
 
     if (error) {
       throw new Error(error.message);

@@ -1,5 +1,17 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { getGeolocationErrorMessage } from '@/utils/errorMessages';
+
+const LOCATION_DEBUG = true;
+
+function locationLog(event: string, payload?: unknown) {
+  if (!LOCATION_DEBUG) return;
+  if (payload !== undefined) {
+    console.log(`[location] ${event}`, payload);
+    return;
+  }
+  console.log(`[location] ${event}`);
+}
 
 interface UseUserLocationOptions {
   onLocationChange?: (latitude: number, longitude: number) => void;
@@ -7,6 +19,7 @@ interface UseUserLocationOptions {
 }
 
 export function useUserLocation({ onLocationChange, onError }: UseUserLocationOptions = {}) {
+  const pathname = usePathname();
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [isRequestingLocation, setIsRequestingLocation] = useState(false);
   
@@ -30,12 +43,14 @@ export function useUserLocation({ onLocationChange, onError }: UseUserLocationOp
   }, [onLocationChange]);
 
   const requestLocation = useCallback(() => {
+    locationLog('request:start');
     setIsRequestingLocation(true);
     
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
+          locationLog('request:success', { latitude, longitude });
           setUserLocation([longitude, latitude]);
           setIsRequestingLocation(false);
           
@@ -44,6 +59,7 @@ export function useUserLocation({ onLocationChange, onError }: UseUserLocationOp
         },
         (error) => {
           const errorMessage = getGeolocationErrorMessage(error);
+          locationLog('request:error', { code: error.code, message: errorMessage });
           setIsRequestingLocation(false);
           
           if (onError) {
@@ -66,6 +82,7 @@ export function useUserLocation({ onLocationChange, onError }: UseUserLocationOp
       );
     } else {
       const errorMessage = 'Browser tidak mendukung geolocation';
+      locationLog('request:not-supported');
       setIsRequestingLocation(false);
       
       if (onError) {
@@ -83,6 +100,7 @@ export function useUserLocation({ onLocationChange, onError }: UseUserLocationOp
   }, [debouncedLocationChange, onError]);
 
   useEffect(() => {
+    locationLog('effect:init-request');
     requestLocation();
     
     // Cleanup debounce timer saat unmount
@@ -90,6 +108,37 @@ export function useUserLocation({ onLocationChange, onError }: UseUserLocationOp
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
+    };
+  }, [requestLocation]);
+
+  useEffect(() => {
+    if (pathname === '/dashboard') {
+      locationLog('effect:pathname-dashboard');
+      requestLocation();
+    }
+  }, [pathname, requestLocation]);
+
+  useEffect(() => {
+    const onPageShow = (event: PageTransitionEvent) => {
+      locationLog('pageshow', { persisted: event.persisted, pathname: window.location.pathname });
+      if (window.location.pathname === '/dashboard') {
+        requestLocation();
+      }
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && window.location.pathname === '/dashboard') {
+        locationLog('visibility:visible-dashboard');
+        requestLocation();
+      }
+    };
+
+    window.addEventListener('pageshow', onPageShow);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      window.removeEventListener('pageshow', onPageShow);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
     };
   }, [requestLocation]);
 

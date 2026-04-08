@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useNearbyReports } from './useNearbyReports';
 import { useMarkerSelection } from './useMarkerSelection';
@@ -13,6 +14,7 @@ import { useUserLocation } from './useUserLocation';
 import { WasteMarker } from '.';
 
 export function useDashboard() {
+  const pathname = usePathname();
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [radiusKm] = useState(10);
@@ -96,6 +98,13 @@ export function useDashboard() {
       fetchNearbyReports(lat, lon);
     }
   }, [userLocation, fetchNearbyReports]);
+
+  useEffect(() => {
+    if (pathname === '/dashboard' && userLocation) {
+      const [lon, lat] = userLocation;
+      fetchNearbyReports(lat, lon);
+    }
+  }, [pathname, userLocation, fetchNearbyReports]);
 
   // Get selected marker
   const selectedMarker = selectedMarkerId 

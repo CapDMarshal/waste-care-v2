@@ -1,18 +1,8 @@
-import dynamic from 'next/dynamic';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import CloseButton from './CloseButton';
 import LocationPermissionButton from './LocationPermissionButton';
 import type { WasteMarker } from '.';
-
-// Lazy load MapTiler only for dashboard
-const MapTilerMap = dynamic(() => import('@/components/shared/LazyMapTilerMap'), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-full flex items-center justify-center bg-gray-100">
-      <div className="animate-pulse text-gray-400">Memuat peta...</div>
-    </div>
-  ),
-});
+import MapTilerMap from '@/components/shared/MapTilerMap';
 
 interface MapViewProps {
   userLocation: [number, number] | null;
@@ -39,16 +29,73 @@ export default function MapView({
   isRequestingLocation = false,
   onRequestLocation,
 }: MapViewProps) {
+  const [mapRenderKey, setMapRenderKey] = useState(0);
+  const [mapReady, setMapReady] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+
+  useEffect(() => {
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        setMapRenderKey(prev => prev + 1);
+      }
+    };
+
+    const onPopState = () => {
+      setMapRenderKey(prev => prev + 1);
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        setMapRenderKey(prev => prev + 1);
+      }
+    };
+
+    window.addEventListener('pageshow', onPageShow);
+    window.addEventListener('popstate', onPopState);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      window.removeEventListener('pageshow', onPageShow);
+      window.removeEventListener('popstate', onPopState);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    setMapReady(false);
+  }, [mapRenderKey]);
+
+  useEffect(() => {
+    if (mapReady) return;
+    if (retryCount >= 3) return;
+
+    const timer = window.setTimeout(() => {
+      if (!mapReady) {
+        console.warn('[map-view] map not ready, remounting', { retryCount: retryCount + 1 });
+        setRetryCount(prev => prev + 1);
+        setMapRenderKey(prev => prev + 1);
+      }
+    }, 5000);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [mapReady, retryCount]);
+
   const handleMapReady = useCallback(() => {
-    // Map is ready
+    setMapReady(true);
+    setRetryCount(0);
   }, []);
 
   const handleMapError = useCallback((error: Error) => {
+    console.error('[map-view] map error', error);
+    setMapReady(false);
   }, []);
 
   return (
     <div className="relative h-screen">
       <MapTilerMap
+        key={mapRenderKey}
         className="w-full h-full"
         center={userLocation || [110.3695, -7.7956]}
         zoom={13}
@@ -58,6 +105,8 @@ export default function MapView({
         routeStart={routeStart}
         routeEnd={routeEnd}
         userLocation={userLocation}
+        onMapReady={handleMapReady}
+        onMapError={handleMapError}
       />
 
       {/* Location Permission Button */}

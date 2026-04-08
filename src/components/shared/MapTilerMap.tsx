@@ -56,47 +56,6 @@ const MapTilerMapComponent: React.FC<MapTilerMapProps> = ({
   const [isOnline, setIsOnline] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [mapError, setMapError] = useState<string | null>(null);
-  
-  // Block third-party cookie requests from MapTiler
-  useEffect(() => {
-    // Prevent MapTiler from making cookie-setting requests
-    const originalFetch = window.fetch;
-    window.fetch = function(...args: any[]) {
-      const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
-      // Block logo.svg and other branding/tracking resources that set cookies
-      if (
-        url.includes('logo.svg') || 
-        url.includes('/resources/logo') ||
-        url.includes('maptiler.com/resources') ||
-        url.includes('api.maptiler.com/resources')
-      ) {
-        // Return empty response instead of rejecting to prevent console errors
-        return Promise.resolve(new Response('', { status: 204 }));
-      }
-      return originalFetch.apply(this, args as [RequestInfo | URL, RequestInit?]);
-    };
-    
-    // Also intercept XMLHttpRequest for older APIs
-    const originalXHROpen = XMLHttpRequest.prototype.open;
-    XMLHttpRequest.prototype.open = function(method: string, url: string | URL, ...rest: any[]) {
-      const urlStr = url.toString();
-      if (
-        urlStr.includes('logo.svg') || 
-        urlStr.includes('/resources/logo') ||
-        urlStr.includes('maptiler.com/resources') ||
-        urlStr.includes('api.maptiler.com/resources')
-      ) {
-        // Block the request
-        return;
-      }
-      return originalXHROpen.apply(this, [method, url, ...rest] as any);
-    };
-    
-    return () => {
-      window.fetch = originalFetch;
-      XMLHttpRequest.prototype.open = originalXHROpen;
-    };
-  }, []);
 
   // Keep callback refs updated
   useEffect(() => {
@@ -136,6 +95,7 @@ const MapTilerMapComponent: React.FC<MapTilerMapProps> = ({
     try {
       setIsLoading(true);
       setMapError(null);
+      console.log('[map] init:start', { center, zoom });
 
       // Initialize the map
       const mapInstance = new Map({
@@ -156,6 +116,7 @@ const MapTilerMapComponent: React.FC<MapTilerMapProps> = ({
 
       // Handle map load
       mapInstance.on('load', () => {
+        console.log('[map] init:load');
         setIsLoading(false);
         onMapReadyRef.current?.(mapInstance);
         
@@ -170,6 +131,7 @@ const MapTilerMapComponent: React.FC<MapTilerMapProps> = ({
 
       // Handle map errors
       mapInstance.on('error', (e) => {
+        console.error('[map] init:error', e);
         const errorMsg = isOnline 
           ? 'Terjadi kesalahan saat memuat peta. Silakan refresh halaman.'
           : 'Tidak ada koneksi internet. Peta tidak dapat dimuat.';
@@ -183,6 +145,7 @@ const MapTilerMapComponent: React.FC<MapTilerMapProps> = ({
       });
 
     } catch (error) {
+      console.error('[map] init:catch', error);
       const errorMsg = 'Gagal menginisialisasi peta. Silakan refresh halaman.';
       setMapError(errorMsg);
       setIsLoading(false);
@@ -190,6 +153,22 @@ const MapTilerMapComponent: React.FC<MapTilerMapProps> = ({
     }
 
     return () => {
+      markersRef.current.forEach((marker) => {
+        try {
+          marker.remove();
+        } catch (error) {
+        }
+      });
+      markersRef.current = [];
+
+      if (userLocationMarkerRef.current) {
+        try {
+          userLocationMarkerRef.current.remove();
+        } catch (error) {
+        }
+        userLocationMarkerRef.current = null;
+      }
+
       if (map.current) {
         try {
           map.current.remove();
@@ -197,8 +176,27 @@ const MapTilerMapComponent: React.FC<MapTilerMapProps> = ({
         }
         map.current = null;
       }
+
+      if (mapContainer.current) {
+        mapContainer.current.innerHTML = '';
+      }
     };
   }, [apiKey, isOnline]); // Removed dependencies that cause re-initialization
+
+  useEffect(() => {
+    if (!isLoading) return;
+
+    const timer = window.setTimeout(() => {
+      if (isLoading) {
+        console.warn('[map] loading watchdog triggered');
+        setIsLoading(false);
+      }
+    }, 9000);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [isLoading]);
 
   // Update map center when center prop changes
   useEffect(() => {
@@ -591,8 +589,7 @@ const MapTilerMapComponent: React.FC<MapTilerMapProps> = ({
         ref={mapContainer} 
         className="w-full h-full"
         style={{
-          position: 'relative',
-          display: isLoading || mapError ? 'none' : 'block'
+          position: 'relative'
         }}
       />
     </div>

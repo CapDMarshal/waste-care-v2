@@ -29,5 +29,11 @@ export async function updateSession(request: NextRequest) {
 
   await supabase.auth.getUser()
 
+  // Prevent stale bfcache/page-cache restores on protected app routes.
+  // This forces browser back/forward to re-request the page state.
+  supabaseResponse.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0')
+  supabaseResponse.headers.set('Pragma', 'no-cache')
+  supabaseResponse.headers.set('Expires', '0')
+
   return supabaseResponse
 }

@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 export const BottomNavigation: React.FC = () => {
@@ -34,11 +33,11 @@ export const BottomNavigation: React.FC = () => {
       )
     },
     {
-      href: '/leaderboard',
-      label: 'Leaderboard',
+      href: '/scan-qr',
+      label: 'Scan QR',
       icon: (active: boolean) => (
         <svg className={`w-full h-full ${active ? 'text-emerald-500' : 'text-slate-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4h5v5H4V4zm11 0h5v5h-5V4zM4 15h5v5H4v-5zm9 9h2m3 0h2m-7-5h2m3 0h2m-7-5h7v7" />
         </svg>
       )
     },
@@ -83,7 +82,7 @@ export const BottomNavigation: React.FC = () => {
           const isActive = pathname === item.href || (item.href === '/dashboard' && pathname === '/');
           
           return (
-            <Link
+            <a
               key={item.href}
               href={item.href}
               className={`flex flex-col items-center justify-center py-2 px-1.5 sm:px-3 rounded-lg transition-colors duration-200 flex-1 max-w-[80px] sm:max-w-none ${
@@ -98,7 +97,7 @@ export const BottomNavigation: React.FC = () => {
               }`}>
                 {item.label}
               </span>
-            </Link>
+            </a>
           );
         })}
       </div>

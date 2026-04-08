@@ -1,7 +1,6 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '../../lib/supabase';
 
@@ -14,70 +13,68 @@ const AuthContext = createContext<AuthContextType>({ user: null, loading: true }
 
 export const useAuthContext = () => useContext(AuthContext);
 
-// Helper: fetch user role from profiles table
-async function getUserRole(userId: string): Promise<string | null> {
-  const { data } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', userId)
-    .single();
-  return (data as any)?.role ?? null;
-}
-
-// Helper: redirect based on role
-async function redirectAfterLogin(userId: string, router: ReturnType<typeof useRouter>) {
-  const role = await getUserRole(userId);
-  if (role === 'admin') {
-    router.push('/admin');
-  } else {
-    // Regular users go to the main dashboard
-    router.push('/dashboard');
-  }
-}
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
-  const pathname = usePathname();
-
-  // Routes that are accessible without login
-  const publicRoutes = ['/', '/login', '/register', '/auth/callback', '/landing'];
-  const isPublicRoute = publicRoutes.some(route => pathname?.startsWith(route));
-  // Admin routes are protected by server-side requireAdmin() — no need to handle here
-  const isAdminRoute = pathname?.startsWith('/admin');
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setUser(session?.user ?? null);
+    if (typeof window === 'undefined') return;
 
-      if (!session?.user) {
-        // Not logged in: protect non-public routes
-        if (!isPublicRoute && !isAdminRoute && !pathname?.startsWith('/api/')) {
-          router.push('/login');
+    (window as any).__WASTECARE_REACT_MOUNTED__ = true;
+    try {
+      sessionStorage.removeItem('__wastecare_zombie_retry__');
+    } catch (e) {
+    }
+
+    return () => {
+      (window as any).__WASTECARE_REACT_MOUNTED__ = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const getUserWithTimeout = async (timeoutMs = 7000) => {
+      return Promise.race([
+        supabase.auth.getUser(),
+        new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('Auth getUser timeout')), timeoutMs);
+        }),
+      ]);
+    };
+
+    const initAuth = async () => {
+      try {
+        const { data: { user: currentUser } } = await getUserWithTimeout();
+        if (cancelled) return;
+
+        setUser(currentUser ?? null);
+      } catch (error) {
+        if (!cancelled) {
+          console.error('Auth init error:', error);
+          setUser(null);
         }
-      } else if (pathname === '/login' || pathname === '/register') {
-        // Logged in but on auth pages: redirect to correct destination by role
-        await redirectAfterLogin(session.user.id, router);
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
-      setLoading(false);
-    });
+    };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    initAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (cancelled) return;
+
       setUser(session?.user ?? null);
       setLoading(false);
-
-      if (event === 'SIGNED_OUT') {
-        router.push('/login');
-      } else if (event === 'SIGNED_IN' && session?.user && isPublicRoute && pathname !== '/') {
-        // Only redirect on explicit login (not on every page load)
-        await redirectAfterLogin(session.user.id, router);
-      }
     });
 
-    return () => subscription.unsubscribe();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   return <AuthContext.Provider value={{ user, loading }}>{children}</AuthContext.Provider>;
 }

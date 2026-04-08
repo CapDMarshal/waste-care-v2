@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { AuthProvider } from "@/components";
-import { ProtectedRoute } from "@/components";
 import { ClientProviders } from "@/components/providers/ClientProviders";
 import { AsyncStyleLoader } from "@/components/shared/AsyncStyleLoader";
 import "./globals.css";
@@ -95,34 +95,88 @@ export default function RootLayout({
             -moz-osx-font-smoothing: grayscale;
           }
         `}} />
+
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function () {
+                if (typeof window === 'undefined') return;
+
+                var RETRY_KEY = '__wastecare_zombie_retry__';
+                var MAX_RETRY = 2;
+
+                var getRetryCount = function () {
+                  try {
+                    return Number(sessionStorage.getItem(RETRY_KEY) || '0');
+                  } catch (e) {
+                    return 0;
+                  }
+                };
+
+                var setRetryCount = function (count) {
+                  try {
+                    sessionStorage.setItem(RETRY_KEY, String(count));
+                  } catch (e) {
+                  }
+                };
+
+                var hardReload = function (reason) {
+                  try {
+                    if (window.__WASTECARE_RELOAD_LOCK__) return;
+                    window.__WASTECARE_RELOAD_LOCK__ = true;
+                    var nextCount = getRetryCount() + 1;
+                    setRetryCount(nextCount);
+                    if (nextCount > MAX_RETRY) {
+                      return;
+                    }
+                    window.location.reload();
+                  } catch (e) {
+                    window.location.reload();
+                  }
+                };
+
+                var checkReactMounted = function (reason) {
+                  if (window.location.pathname.indexOf('/dashboard') !== 0) return;
+
+                  window.setTimeout(function () {
+                    if (!window.__WASTECARE_REACT_MOUNTED__) {
+                      hardReload(reason + ':react-not-mounted');
+                    }
+                  }, 1500);
+                };
+
+                // Disable BFCache eligibility in many browsers.
+                window.addEventListener('unload', function () {});
+
+                checkReactMounted('initial');
+
+                window.addEventListener('pageshow', function (event) {
+                  if (event.persisted && window.location.pathname.indexOf('/dashboard') === 0) {
+                    hardReload('pageshow:persisted');
+                  }
+                  checkReactMounted('pageshow');
+                });
+
+                window.addEventListener('popstate', function () {
+                  if (window.location.pathname.indexOf('/dashboard') === 0) {
+                    hardReload('popstate:dashboard');
+                  }
+                  checkReactMounted('popstate');
+                });
+              })();
+            `,
+          }}
+        />
         
-        {/* Back/Forward Cache restoration support */}
-        <script dangerouslySetInnerHTML={{ __html: `
-          window.addEventListener('pageshow', function(event) {
-            if (event.persisted) {
-              // Refresh dynamic content if needed
-              if (window.location.pathname.includes('/dashboard') || 
-                  window.location.pathname.includes('/campaign') ||
-                  window.location.pathname.includes('/leaderboard')) {
-                window.location.reload();
-              }
-            }
-          });
-          
-          // Mark page as bfcache-eligible
-          window.addEventListener('pagehide', function(event) {
-            // Allow bfcache by not having any blocking operations
-          });
-        `}} />
       </head>
       <body className="antialiased" suppressHydrationWarning>
         <AsyncStyleLoader />
         <AuthProvider>
-          <ProtectedRoute>
-            <ClientProviders>
+          <ClientProviders>
+            <Suspense fallback={<div>Memuat halaman...</div>}>
               {children}
-            </ClientProviders>
-          </ProtectedRoute>
+            </Suspense>
+          </ClientProviders>
         </AuthProvider>
       </body>
     </html>
