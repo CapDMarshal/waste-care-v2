@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { formatWasteVolumeLabel } from './wasteVolume';
 
 interface NearbyReportsParams {
   latitude: number;
@@ -108,13 +109,7 @@ export function formatHazardRisk(risk: string): string {
 }
 
 export function formatWasteVolume(volume: string): string {
-  const labels: Record<string, string> = {
-    kurang_dari_1kg: 'Kurang dari 1kg',
-    '1_5kg': '1-5kg',
-    '6_10kg': '6-10kg',
-    lebih_dari_10kg: 'Lebih dari 10kg',
-  };
-  return labels[volume] || volume;
+  return formatWasteVolumeLabel(volume);
 }
 
 export function formatLocationCategory(category: string): string {

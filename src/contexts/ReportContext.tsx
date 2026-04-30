@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import type { WasteVolume } from '../lib/wasteVolume';
 
 export interface Location {
   latitude: number;
@@ -22,7 +23,7 @@ export interface ReportData {
   photos: string[]; // Base64 encoded images
   wasteType: 'organik' | 'anorganik' | 'campuran' | null;
   hazardRisk: 'tidak_ada' | 'rendah' | 'menengah' | 'tinggi' | null;
-  wasteVolume: 'kurang_dari_1kg' | '1_5kg' | '6_10kg' | 'lebih_dari_10kg' | null;
+  wasteVolume: WasteVolume | null;
   locationCategory: 'sungai' | 'pinggir_jalan' | 'area_publik' | 'tanah_kosong' | 'lainnya' | null;
   notes?: string;
   // Store AI validation result after upload

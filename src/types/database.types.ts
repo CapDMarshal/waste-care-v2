@@ -283,7 +283,7 @@ export interface Database {
     Enums: {
       location_category_enum: 'sungai' | 'pinggir_jalan' | 'area_publik' | 'tanah_kosong' | 'lainnya'
       waste_type_enum: 'organik' | 'anorganik' | 'campuran'
-      waste_volume_enum: 'kurang_dari_1kg' | '1_5kg' | '6_10kg' | 'lebih_dari_10kg'
+      waste_volume_enum: 'kurang_dari_30kg' | '30_50kg' | '50_100kg' | 'lebih_dari_100kg'
       hazard_risk_enum: 'tidak_ada' | 'rendah' | 'menengah' | 'tinggi'
       campaign_status_enum: 'upcoming' | 'ongoing' | 'finished'
       campaign_organizer_type_enum: 'personal' | 'organization'

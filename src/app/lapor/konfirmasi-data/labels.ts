@@ -1,3 +1,5 @@
+export { WASTE_VOLUME_LABELS } from '../../../lib/wasteVolume';
+
 export const WASTE_TYPE_LABELS = {
   organik: 'Organik',
   anorganik: 'Anorganik',
@@ -9,13 +11,6 @@ export const HAZARD_RISK_LABELS = {
   rendah: 'Rendah',
   menengah: 'Menengah',
   tinggi: 'Tinggi',
-};
-
-export const WASTE_VOLUME_LABELS = {
-  kurang_dari_1kg: 'Kurang dari 1kg',
-  '1_5kg': '1-5kg',
-  '6_10kg': '6-10kg',
-  lebih_dari_10kg: 'Lebih dari 10kg',
 };
 
 export const LOCATION_CATEGORY_LABELS = {

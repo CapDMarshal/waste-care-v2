@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Toast } from '@/components';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
+import { formatWasteVolumeLabel } from '../../../lib/wasteVolume';
 
 interface Report {
   id: number;
@@ -79,13 +80,7 @@ export default function RiwayatLaporanPage() {
   };
 
   const getVolumeLabel = (volume: string) => {
-    const labels: Record<string, string> = {
-      kurang_dari_1kg: '< 1 kg',
-      '1_5kg': '1-5 kg',
-      '6_10kg': '6-10 kg',
-      lebih_dari_10kg: '> 10 kg',
-    };
-    return labels[volume] || volume;
+    return formatWasteVolumeLabel(volume);
   };
 
   const getLocationLabel = (location: string) => {

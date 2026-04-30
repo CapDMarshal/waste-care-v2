@@ -11,7 +11,7 @@
 //   notes?             string
 //   waste_type?        'organik'|'anorganik'|'campuran'   (AI-generated if omitted)
 //   hazard_risk?       'tidak_ada'|'rendah'|'menengah'|'tinggi'  (AI-generated if omitted)
-//   waste_volume?      'kurang_dari_1kg'|'1_5kg'|'6_10kg'|'lebih_dari_10kg'
+//   waste_volume?      'kurang_dari_30kg'|'30_50kg'|'50_100kg'|'lebih_dari_100kg'
 //   location_category? 'sungai'|'pinggir_jalan'|'area_publik'|'tanah_kosong'|'lainnya'
 //
 // Response:
@@ -36,7 +36,7 @@ const GEMINI_MODEL = 'gemini-2.5-flash';
 // ── Valid enum values ─────────────────────────────────────────
 const VALID_WASTE_TYPES = ['organik', 'anorganik', 'campuran'] as const;
 const VALID_HAZARD_RISKS = ['tidak_ada', 'rendah', 'menengah', 'tinggi'] as const;
-const VALID_WASTE_VOLUMES = ['kurang_dari_1kg', '1_5kg', '6_10kg', 'lebih_dari_10kg'] as const;
+const VALID_WASTE_VOLUMES = ['kurang_dari_30kg', '30_50kg', '50_100kg', 'lebih_dari_100kg'] as const;
 const VALID_LOCATION_CATS = ['sungai', 'pinggir_jalan', 'area_publik', 'tanah_kosong', 'lainnya'] as const;
 
 type WasteType = typeof VALID_WASTE_TYPES[number];
@@ -131,7 +131,7 @@ JSON schema:
   "reason": string,             // 1-2 sentence explanation in Indonesian
   "waste_type": "organik"|"anorganik"|"campuran",  // organic, inorganic, or mixed
   "hazard_risk": "tidak_ada"|"rendah"|"menengah"|"tinggi",  // hazard level
-  "waste_volume": "kurang_dari_1kg"|"1_5kg"|"6_10kg"|"lebih_dari_10kg",
+  "waste_volume": "kurang_dari_30kg"|"30_50kg"|"50_100kg"|"lebih_dari_100kg",
   "location_category": "sungai"|"pinggir_jalan"|"area_publik"|"tanah_kosong"|"lainnya"
 }
 
@@ -196,7 +196,7 @@ Classification guide:
   // Sanitise/default any out-of-range values
   if (!VALID_WASTE_TYPES.includes(parsed.waste_type)) parsed.waste_type = 'campuran';
   if (!VALID_HAZARD_RISKS.includes(parsed.hazard_risk)) parsed.hazard_risk = 'tidak_ada';
-  if (!VALID_WASTE_VOLUMES.includes(parsed.waste_volume)) parsed.waste_volume = 'kurang_dari_1kg';
+  if (!VALID_WASTE_VOLUMES.includes(parsed.waste_volume)) parsed.waste_volume = 'kurang_dari_30kg';
   if (!VALID_LOCATION_CATS.includes(parsed.location_category)) parsed.location_category = 'lainnya';
 
   return parsed;

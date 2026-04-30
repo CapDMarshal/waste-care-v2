@@ -2,9 +2,9 @@ import { DetailItem } from '@/components';
 import { 
   WASTE_TYPE_LABELS,
   HAZARD_RISK_LABELS,
-  WASTE_VOLUME_LABELS, 
   LOCATION_CATEGORY_LABELS 
 } from './labels';
+import { formatWasteVolumeLabel } from '../../../lib/wasteVolume';
 
 interface ReportDetailsProps {
   wasteType: string | null;
@@ -67,7 +67,7 @@ export default function ReportDetails({
           </svg>
         }
         title="Volume sampah (dianalisis AI)"
-        description={wasteVolume ? WASTE_VOLUME_LABELS[wasteVolume as keyof typeof WASTE_VOLUME_LABELS] : '-'}
+        description={formatWasteVolumeLabel(wasteVolume)}
       />
 
       {/* Location */}

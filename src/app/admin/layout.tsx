@@ -48,6 +48,14 @@ export default async function AdminLayout({
           </Link>
           
           <Link 
+            href="/admin/campaign" 
+            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-green-700 transition-colors shrink-0"
+          >
+            <Flag size={20} />
+            <span className="font-medium hidden md:inline">Kelola Campaign</span>
+          </Link>
+
+          <Link 
             href="/admin/campaign/buat" 
             className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-green-700 transition-colors shrink-0"
           >

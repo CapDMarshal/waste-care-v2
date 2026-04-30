@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { formatWasteVolumeLabel } from '../lib/wasteVolume';
 
 interface ReportWithCoordinates {
   id: number;
@@ -89,13 +90,7 @@ function getWasteTypeLabel(type: string): string {
 }
 
 function getVolumeLabel(volume: string): string {
-  const labels: Record<string, string> = {
-    'kurang_dari_1kg': 'Kurang dari 1kg',
-    '1_5kg': '1-5kg',
-    '6_10kg': '6-10kg',
-    'lebih_dari_10kg': 'Lebih dari 10kg'
-  };
-  return labels[volume] || volume;
+  return formatWasteVolumeLabel(volume);
 }
 
 function getCategoryLabel(category: string): string {

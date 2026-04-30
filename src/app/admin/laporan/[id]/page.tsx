@@ -3,6 +3,7 @@ import { getReportDetailAdmin } from '@/lib/adminService'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { formatWasteVolumeLabel } from '../../../../lib/wasteVolume'
 import { ArrowLeft, CheckCircle, AlertTriangle, XCircle, MapPin, Calendar, Check, ExternalLink } from 'lucide-react'
 import { approveAction, rejectAction, forwardHazardousAction } from './actions'
 
@@ -98,7 +99,7 @@ export default async function AdminReportDetailPage({
               <p className="text-gray-500 mb-1">Volume Estimasi</p>
               <p className="font-medium text-gray-900 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-green-500 block"></span>
-                {report.waste_volume.replace(/_/g, ' ')}
+                {formatWasteVolumeLabel(report.waste_volume)}
               </p>
             </div>
             
