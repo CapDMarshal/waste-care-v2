@@ -17,76 +17,57 @@ export interface SubmitReportResponse {
 }
 
 export async function submitReport(params: SubmitReportParams): Promise<SubmitReportResponse> {
-  let lastError: Error | null = null;
+  const imageSizeInBytes = (params.imageBase64.length * 3) / 4;
+  const imageSizeInMB = imageSizeInBytes / (1024 * 1024);
 
-  for (let attempt = 1; attempt <= 2; attempt++) {
-    try {
-      const imageSizeInBytes = (params.imageBase64.length * 3) / 4;
-      const imageSizeInMB = imageSizeInBytes / (1024 * 1024);
-
-      if (imageSizeInMB > 10) {
-        throw new Error(`Ukuran gambar terlalu besar (${imageSizeInMB.toFixed(1)} MB). Maksimal 10 MB.`);
-      }
-
-      // getUser() validates + refreshes the session before invoking
-      const { error: userError } = await supabase.auth.getUser();
-      if (userError) {
-        throw new Error('Sesi anda telah berakhir. Silakan login kembali.');
-      }
-
-      // refreshSession() always hits the network and returns a guaranteed-fresh access_token
-      const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
-      const session = refreshData?.session;
-
-      if (refreshError || !session?.access_token) {
-        throw new Error('Sesi anda telah berakhir. Silakan login kembali.');
-      }
-
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-      const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-      const response = await fetch(`${supabaseUrl}/functions/v1/submit-report`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-          'apikey': anonKey,
-        },
-        body: JSON.stringify({
-          image_base64: params.imageBase64,
-          latitude: params.latitude,
-          longitude: params.longitude,
-          notes: params.notes || '',
-        }),
-      });
-      const responseText = await response.text();
-      let data: any;
-      try { data = JSON.parse(responseText); } catch { data = null; }
-
-      if (!response.ok) {
-        throw new Error(data?.error || data?.message || `HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      if (!data?.success) {
-        throw new Error(data?.error || data?.message || 'Gagal memvalidasi laporan');
-      }
-
-      return data;
-    } catch (error) {
-      lastError = error as Error;
-      if (
-        lastError.message.includes('Session expired') ||
-        lastError.message.includes('Ukuran gambar terlalu besar') ||
-        lastError.message.includes('tidak terdeteksi sebagai sampah') ||
-        lastError.message.includes('login')
-      ) {
-        throw lastError;
-      }
-      if (attempt === 1) await new Promise(resolve => setTimeout(resolve, 2000));
-    }
+  if (imageSizeInMB > 10) {
+    throw new Error(`Ukuran gambar terlalu besar (${imageSizeInMB.toFixed(1)} MB). Maksimal 10 MB.`);
   }
 
-  throw lastError || new Error('Upload failed after 2 attempts');
+  // getUser() validates + refreshes the session before invoking
+  const { error: userError } = await supabase.auth.getUser();
+  if (userError) {
+    throw new Error('Sesi anda telah berakhir. Silakan login kembali.');
+  }
+
+  // refreshSession() always hits the network and returns a guaranteed-fresh access_token
+  const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+  const session = refreshData?.session;
+
+  if (refreshError || !session?.access_token) {
+    throw new Error('Sesi anda telah berakhir. Silakan login kembali.');
+  }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+  const response = await fetch(`${supabaseUrl}/functions/v1/submit-report`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${session.access_token}`,
+      'apikey': anonKey,
+    },
+    body: JSON.stringify({
+      image_base64: params.imageBase64,
+      latitude: params.latitude,
+      longitude: params.longitude,
+      notes: params.notes || '',
+    }),
+  });
+  const responseText = await response.text();
+  let data: any;
+  try { data = JSON.parse(responseText); } catch { data = null; }
+
+  if (!response.ok) {
+    throw new Error(data?.error || data?.message || `HTTP ${response.status}: ${response.statusText}`);
+  }
+
+  if (!data?.success) {
+    throw new Error(data?.error || data?.message || 'Gagal memvalidasi laporan');
+  }
+
+  return data;
 }
 
 /**

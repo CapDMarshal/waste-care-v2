@@ -48,7 +48,7 @@ type LocationCat = typeof VALID_LOCATION_CATS[number];
 interface GeminiClassification {
   is_waste: boolean;
   confidence: 'tinggi' | 'menengah' | 'rendah';
-  reason: string;
+  notes: string;
   waste_type: WasteType;
   hazard_risk: HazardRisk;
   waste_volume: WasteVolume;
@@ -111,6 +111,63 @@ async function getVertexAIToken(serviceAccountJson: string): Promise<string> {
   return access_token;
 }
 
+function extractJsonObject(rawText: string): string {
+  const trimmed = rawText.trim();
+  const unfenced = trimmed
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/```\s*$/i, '')
+    .trim();
+
+  if (unfenced.startsWith('{') && unfenced.endsWith('}')) {
+    return unfenced;
+  }
+
+  const firstBrace = unfenced.indexOf('{');
+  const lastBrace = unfenced.lastIndexOf('}');
+
+  if (firstBrace >= 0 && lastBrace > firstBrace) {
+    return unfenced.slice(firstBrace, lastBrace + 1).trim();
+  }
+
+  return unfenced;
+}
+
+function repairJsonText(rawText: string): string {
+  return rawText
+    .replace(/,\s*([}\]])/g, '$1')
+    .replace(/\n\s*\n/g, '\n')
+    .trim();
+}
+
+function parseGeminiClassification(rawText: string): GeminiClassification {
+  const cleaned = extractJsonObject(rawText);
+  const parseCandidates = [cleaned, repairJsonText(cleaned)];
+  let parsed: (Partial<GeminiClassification> & { reason?: string }) | undefined;
+
+  for (const candidate of parseCandidates) {
+    try {
+      parsed = JSON.parse(candidate) as Partial<GeminiClassification> & { reason?: string };
+      break;
+    } catch {
+      continue;
+    }
+  }
+
+  if (!parsed || typeof parsed !== 'object') {
+    throw new Error('Vertex AI tidak mengembalikan objek JSON yang valid');
+  }
+
+  if (!parsed.notes && parsed.reason) {
+    parsed.notes = parsed.reason;
+  }
+
+  if (!parsed.notes) {
+    parsed.notes = '';
+  }
+
+  return parsed as GeminiClassification;
+}
+
 // ── Helper — call Vertex AI Vision ───────────────────────────────
 async function classifyWithVertexAI(
   imageBase64: string,
@@ -128,7 +185,7 @@ JSON schema:
 {
   "is_waste": boolean,           // true if the image clearly contains waste/trash
   "confidence": "tinggi"|"menengah"|"rendah",
-  "reason": string,             // 1-2 sentence explanation in Indonesian
+  "notes": string,              // 1-2 sentence explanation in Indonesian
   "waste_type": "organik"|"anorganik"|"campuran",  // organic, inorganic, or mixed
   "hazard_risk": "tidak_ada"|"rendah"|"menengah"|"tinggi",  // hazard level
   "waste_volume": "kurang_dari_30kg"|"30_50kg"|"50_100kg"|"lebih_dari_100kg",
@@ -167,7 +224,7 @@ Classification guide:
       }],
       generationConfig: {
         temperature: 0.1,
-        maxOutputTokens: 512,
+        maxOutputTokens: 1024,
         responseMimeType: 'application/json',
       },
     }),
@@ -187,10 +244,10 @@ Classification guide:
 
   let parsed: GeminiClassification;
   try {
-    const cleaned = rawText.replace(/^```json?\s*/i, '').replace(/```\s*$/i, '').trim();
-    parsed = JSON.parse(cleaned);
+    parsed = parseGeminiClassification(rawText);
   } catch {
-    throw new Error('Vertex AI tidak mengembalikan JSON yang valid');
+    const preview = rawText.trim().slice(0, 200).replace(/\s+/g, ' ');
+    throw new Error(`Vertex AI tidak mengembalikan JSON yang valid${preview ? `: ${preview}` : ''}`);
   }
 
   // Sanitise/default any out-of-range values
@@ -314,7 +371,7 @@ serve(async (req: Request) => {
       validation: {
         isWaste: false,
         confidence: aiResult.confidence,
-        reason: aiResult.reason,
+        notes: aiResult.notes,
       },
     }, 422);
   }
@@ -328,6 +385,7 @@ serve(async (req: Request) => {
     ? overrideWasteVolume : aiResult.waste_volume) as WasteVolume;
   const finalLocation: LocationCat = (VALID_LOCATION_CATS.includes(overrideLocationCat as LocationCat)
     ? overrideLocationCat : aiResult.location_category) as LocationCat;
+  const finalNotes = ((notes as string) || '').trim() || aiResult.notes;
 
   // ── Upload image to Storage ───────────────────────────────
   const adminClient = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
@@ -368,7 +426,7 @@ serve(async (req: Request) => {
       p_hazard_risk: finalHazardRisk,
       p_waste_volume: finalVolume,
       p_location_category: finalLocation,
-      p_notes: (notes as string) || null,
+      p_notes: finalNotes || null,
       p_latitude: latitude,
       p_longitude: longitude,
     });
@@ -394,7 +452,7 @@ serve(async (req: Request) => {
       validation: {
         isWaste: aiResult.is_waste,
         confidence: aiResult.confidence,
-        reason: aiResult.reason,
+        notes: finalNotes,
         waste_type: finalWasteType,
         hazard_risk: finalHazardRisk,
         waste_volume: finalVolume,

@@ -121,7 +121,7 @@ export default async function AdminReportDetailPage({
 
             {report.notes && (
               <div>
-                <p className="text-gray-500 mb-1">Catatan Pelapor</p>
+                <p className="text-gray-500 mb-1">Catatan Laporan</p>
                 <div className="bg-gray-50 p-3 rounded-lg border border-gray-100 text-gray-700 italic">
                   "{report.notes}"
                 </div>

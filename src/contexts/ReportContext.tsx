@@ -11,7 +11,7 @@ export interface Location {
 export interface AiValidation {
   isWaste: boolean;
   confidence: string;
-  reason?: string;
+  notes?: string;
   waste_type?: 'organik' | 'anorganik' | 'campuran';
   hazard_risk?: 'tidak_ada' | 'rendah' | 'menengah' | 'tinggi';
   waste_volume?: string;
@@ -26,6 +26,7 @@ export interface ReportData {
   wasteVolume: WasteVolume | null;
   locationCategory: 'sungai' | 'pinggir_jalan' | 'area_publik' | 'tanah_kosong' | 'lainnya' | null;
   notes?: string;
+  reportId?: number;
   // Store AI validation result after upload
   aiValidation?: AiValidation;
 }
@@ -39,6 +40,7 @@ interface ReportContextType {
   setWasteVolume: (volume: ReportData['wasteVolume']) => void;
   setLocationCategory: (category: ReportData['locationCategory']) => void;
   setNotes: (notes: string) => void;
+  setReportId: (reportId: number) => void;
   setAiValidation: (validation: ReportData['aiValidation']) => void;
   resetReport: () => void;
 }
@@ -53,6 +55,7 @@ const initialReportData: ReportData = {
   wasteVolume: null,
   locationCategory: null,
   notes: '',
+  reportId: undefined,
 };
 
 export function ReportProvider({ children }: { children: ReactNode }) {
@@ -89,6 +92,10 @@ export function ReportProvider({ children }: { children: ReactNode }) {
     setReportData(prev => ({ ...prev, notes }));
   };
 
+  const setReportId = (reportId: number) => {
+    setReportData(prev => ({ ...prev, reportId }));
+  };
+
   const setAiValidation = (validation: AiValidation | undefined) => {
     setReportData(prev => ({ ...prev, aiValidation: validation }));
   };
@@ -108,6 +115,7 @@ export function ReportProvider({ children }: { children: ReactNode }) {
         setWasteVolume,
         setLocationCategory,
         setNotes,
+        setReportId,
         setAiValidation,
         resetReport,
       }}

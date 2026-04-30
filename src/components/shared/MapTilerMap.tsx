@@ -229,23 +229,24 @@ const MapTilerMapComponent: React.FC<MapTilerMapProps> = ({
             // Create marker element
             const el = document.createElement('div');
             el.className = 'marker';
+            el.style.position = 'relative';
+            el.style.width = '40px';
+            el.style.height = '52px';
+            el.style.display = 'flex';
+            el.style.alignItems = 'center';
+            el.style.justifyContent = 'center';
             el.style.cursor = 'pointer';
+            el.style.pointerEvents = 'auto';
+            el.style.zIndex = '10';
             
             if (markerData.type === 'waste') {
-              // Create waste marker with only the trash icon
+              // High-contrast waste pin so it stays visible over satellite tiles
               el.innerHTML = `
-                <img 
-                  src="/icons/trashicon.png" 
-                  alt="Trash" 
-                  loading="lazy"
-                  style="
-                    width: 50px;
-                    height: 50px;
-                    object-fit: contain;
-                    cursor: pointer;
-                  " 
-                  onerror="this.style.display='none'"
-                />
+                <svg width="40" height="52" viewBox="0 0 40 52" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.35));">
+                  <path d="M20 50C20 50 34 34.7 34 22C34 13.2 27.7 6 20 6C12.3 6 6 13.2 6 22C6 34.7 20 50 20 50Z" fill="#16a34a" stroke="white" stroke-width="3" />
+                  <circle cx="20" cy="22" r="8" fill="white" opacity="0.95" />
+                  <path d="M16.5 19.8H23.5V25.8H16.5V19.8ZM15.7 18.4H24.3L23.8 17.2H16.2L15.7 18.4ZM17.4 26.7H22.6C23.2 26.7 23.7 26.2 23.7 25.6V20.1H16.3V25.6C16.3 26.2 16.8 26.7 17.4 26.7ZM18.1 20.9H19.1V24.8H18.1V20.9ZM20.9 20.9H21.9V24.8H20.9V20.9Z" fill="#16a34a" />
+                </svg>
               `;
             } else if (markerData.type === 'user') {
               el.style.width = '32px';
@@ -268,7 +269,7 @@ const MapTilerMapComponent: React.FC<MapTilerMapProps> = ({
             }
 
             // Add marker to map
-            const marker = new Marker({ element: el })
+            const marker = new Marker({ element: el, anchor: 'bottom' })
               .setLngLat(markerData.coordinates)
               .addTo(map.current);
             

@@ -15,6 +15,7 @@ export function getReportDisplayData(reportData: ReportData): ProcessedReportDat
   const wasteVolume = reportData.aiValidation?.waste_volume || reportData.wasteVolume;
   const locationCategory = reportData.aiValidation?.location_category || reportData.locationCategory;
   const hazardRisk = reportData.aiValidation?.hazard_risk || null;
+  const notes = reportData.notes || reportData.aiValidation?.notes || '';
 
   return {
     wasteType,
@@ -22,6 +23,6 @@ export function getReportDisplayData(reportData: ReportData): ProcessedReportDat
     locationCategory,
     hazardRisk,
     photos: reportData.photos,
-    notes: reportData.notes,
+    notes,
   };
 }
