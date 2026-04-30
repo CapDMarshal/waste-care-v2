@@ -1,10 +1,12 @@
 import { requireAdmin } from '@/lib/adminGuard'
 import { getReportDetailAdmin } from '@/lib/adminService'
+import { parseWKTPoint } from '@/lib/locationParser'
+import AdminLocationSection from './AdminLocationSection'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { formatWasteVolumeLabel } from '../../../../lib/wasteVolume'
-import { ArrowLeft, CheckCircle, AlertTriangle, XCircle, MapPin, Calendar, Check, ExternalLink } from 'lucide-react'
+import { ArrowLeft, CheckCircle, AlertTriangle, XCircle, MapPin, Calendar } from 'lucide-react'
 import { approveAction, rejectAction, forwardHazardousAction } from './actions'
 
 // Server component
@@ -19,6 +21,9 @@ export default async function AdminReportDetailPage({
   const report = await getReportDetailAdmin(parseInt(id, 10))
   if (!report) return notFound()
 
+  // Parse location to get coordinates
+  const coords = parseWKTPoint(report.location)
+
   // Status badge config
   const statusColors = {
     pending: 'bg-orange-100 text-orange-700 border-orange-200',
@@ -26,10 +31,6 @@ export default async function AdminReportDetailPage({
     rejected: 'bg-gray-100 text-gray-700 border-gray-200',
     hazardous: 'bg-red-100 text-red-700 border-red-200',
   }
-
-  // Parse location manually just for preview if needed
-  // This is generic handling, assume we let them open maps for now
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${report.location}` // Usually location string contains raw Point(...) but Google Maps uses standard coords. Just a placeholder for the URL concept.
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-20 animate-in fade-in duration-500">
@@ -60,6 +61,15 @@ export default async function AdminReportDetailPage({
           </div>
         </div>
       </div>
+
+      {/* Location Section */}
+      {coords && (
+        <AdminLocationSection 
+          latitude={coords.latitude}
+          longitude={coords.longitude}
+          reportId={report.id}
+        />
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
         

@@ -43,12 +43,13 @@ export async function getTopProvinces(limit: number = 5): Promise<ProvinceStatis
 /**
  * Fetch all reports with coordinates for map display
  * @param limit Maximum number of reports to return
- * @returns Array of reports with coordinates
+ * @returns Array of approved reports with coordinates
  */
 export async function getReportsForMap(limit: number = 100): Promise<MapReport[]> {
   try {
     const { data, error } = await supabase
       .rpc('get_reports_with_coordinates')
+      .eq('status', 'approved')
       .limit(limit);
 
     if (error) {
