@@ -229,10 +229,18 @@ const MapTilerMapComponent: React.FC<MapTilerMapProps> = ({
             // Create marker element
             const el = document.createElement('div');
             el.className = 'marker';
+            el.style.position = 'relative';
+            el.style.width = '40px';
+            el.style.height = '52px';
+            el.style.display = 'flex';
+            el.style.alignItems = 'center';
+            el.style.justifyContent = 'center';
             el.style.cursor = 'pointer';
+            el.style.pointerEvents = 'auto';
+            el.style.zIndex = '10';
             
             if (markerData.type === 'waste') {
-              // Create waste marker with only the trash icon
+              // Create waste marker with trash icon
               el.innerHTML = `
                 <img 
                   src="/icons/trashicon.png" 

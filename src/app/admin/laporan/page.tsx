@@ -130,6 +130,12 @@ export default async function AdminLaporanPage({
                     </span>
                   </div>
                 </div>
+
+                {report.notes && (
+                  <p className="mt-2 text-sm text-gray-500 line-clamp-2">
+                    Catatan: {report.notes}
+                  </p>
+                )}
               </div>
 
               <div className="hidden md:flex self-center shrink-0 pr-2">

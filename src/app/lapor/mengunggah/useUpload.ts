@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { submitReport } from '@/lib/reportService';
 import { ReportData, AiValidation } from '@/contexts/ReportContext';
@@ -6,15 +6,24 @@ import { ReportData, AiValidation } from '@/contexts/ReportContext';
 interface UseUploadProps {
   reportData: ReportData;
   setAiValidation: (validation: AiValidation) => void;
+  setNotes: (notes: string) => void;
+  setReportId: (reportId: number) => void;
 }
 
-export function useUpload({ reportData, setAiValidation }: UseUploadProps) {
+export function useUpload({ reportData, setAiValidation, setNotes, setReportId }: UseUploadProps) {
   const router = useRouter();
+  const uploadInFlightRef = useRef(false);
   const [progress, setProgress] = useState(0);
   const [uploading, setUploading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const handleUpload = async () => {
+    if (uploadInFlightRef.current) {
+      return;
+    }
+
+    uploadInFlightRef.current = true;
+
     let progressInterval: NodeJS.Timeout | null = null;
     let completeProgress: NodeJS.Timeout | null = null;
 
@@ -81,9 +90,9 @@ export function useUpload({ reportData, setAiValidation }: UseUploadProps) {
 
         // Handle validation failure (not waste)
         if (result.validation && !result.validation.isWaste) {
-          const reason = result.validation.reason || 'Gambar tidak terdeteksi sebagai sampah';
+          const notes = result.validation.notes || 'Gambar tidak terdeteksi sebagai sampah';
           throw new Error(
-            `${result.message || 'Validasi gambar gagal'}\n\nAlasan: ${reason}`
+            `${result.message || 'Validasi gambar gagal'}\n\nCatatan: ${notes}`
           );
         }
 
@@ -120,6 +129,13 @@ export function useUpload({ reportData, setAiValidation }: UseUploadProps) {
       // Save AI validation result to context
       if (result.data?.validation) {
         setAiValidation(result.data.validation);
+        if (!reportData.notes?.trim()) {
+          setNotes(result.data.validation.notes || '');
+        }
+      }
+
+      if (result.data?.report_id) {
+        setReportId(result.data.report_id);
       }
 
       // Simulate remaining progress (30-100%)
@@ -169,6 +185,8 @@ export function useUpload({ reportData, setAiValidation }: UseUploadProps) {
       setError(errorMessage);
       setUploading(false);
       setProgress(0);
+    } finally {
+      uploadInFlightRef.current = false;
     }
   };
 

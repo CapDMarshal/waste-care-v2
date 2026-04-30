@@ -12,6 +12,7 @@ interface ReportDetailsProps {
   locationCategory: string | null;
   hazardRisk?: string | null;
   notes?: string;
+  onNotesChange?: (value: string) => void;
 }
 
 // Badge colour based on risk level
@@ -27,7 +28,8 @@ export default function ReportDetails({
   wasteVolume, 
   locationCategory,
   hazardRisk,
-  notes 
+  notes,
+  onNotesChange
 }: ReportDetailsProps) {
   return (
     <div className="space-y-4">
@@ -82,17 +84,29 @@ export default function ReportDetails({
         description={locationCategory ? LOCATION_CATEGORY_LABELS[locationCategory as keyof typeof LOCATION_CATEGORY_LABELS] : '-'}
       />
 
-      {/* Notes if exists */}
-      {notes && (
-        <div className="bg-gray-50 rounded-xl p-4">
-          <h3 className="text-sm font-medium text-gray-700 mb-2">
-            Catatan tambahan
-          </h3>
+      <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Catatan laporan
+        </label>
+        {onNotesChange ? (
+          <>
+            <textarea
+              value={notes || ''}
+              onChange={(event) => onNotesChange(event.target.value)}
+              rows={4}
+              className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 outline-none transition focus:border-green-500 focus:ring-2 focus:ring-green-100"
+              placeholder="Catatan bisa diisi dari AI lalu diedit oleh pengguna"
+            />
+            <p className="mt-2 text-xs text-gray-500">
+              Satu catatan dipakai untuk laporan ini. Anda boleh mengubahnya sebelum selesai.
+            </p>
+          </>
+        ) : (
           <p className="text-sm text-gray-600">
-            {notes}
+            {notes || '-'}
           </p>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

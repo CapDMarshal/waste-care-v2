@@ -12,12 +12,14 @@ import UploadingState from './UploadingState';
 
 export default function MengunggahPage() {
   const router = useRouter();
-  const { reportData, setAiValidation } = useReport();
+  const { reportData, setAiValidation, setNotes, setReportId } = useReport();
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'warning' | 'info' } | null>(null);
 
   const { progress, uploading, error, handleUpload, handleRetry } = useUpload({
     reportData,
     setAiValidation,
+    setNotes,
+    setReportId,
   });
 
   useEffect(() => {
