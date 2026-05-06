@@ -49,7 +49,15 @@ async function callAdminEdge<T>(path: 'get-admin-statistics' | 'get-pending-repo
   return payload.data as T
 }
 
-export async function getAdminStatistics() {
+interface AdminStats {
+  pending_count: number
+  approved_count: number
+  rejected_count: number
+  hazardous_count: number
+  total_count: number
+}
+
+export async function getAdminStatistics(): Promise<AdminStats> {
   const supabase = await createClient()
   const { data, error } = await supabase.rpc('get_admin_statistics').single()
 
@@ -77,7 +85,7 @@ export async function getAdminStatistics() {
     }
   }
 
-  return data
+  return data as AdminStats
 }
 
 export async function getPendingReports() {
