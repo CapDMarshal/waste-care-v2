@@ -49,7 +49,15 @@ async function callAdminEdge<T>(path: 'get-admin-statistics' | 'get-pending-repo
   return payload.data as T
 }
 
-export async function getAdminStatistics() {
+interface AdminStats {
+  pending_count: number
+  approved_count: number
+  rejected_count: number
+  hazardous_count: number
+  total_count: number
+}
+
+export async function getAdminStatistics(): Promise<AdminStats> {
   const supabase = await createClient()
   const { data, error } = await supabase.rpc('get_admin_statistics').single()
 
@@ -77,7 +85,7 @@ export async function getAdminStatistics() {
     }
   }
 
-  return data
+  return data as AdminStats
 }
 
 export async function getPendingReports() {
@@ -158,6 +166,15 @@ export async function updateReportStatus(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
 
+  // Fetch report to get user_id
+  const { data: report, error: reportError } = await supabase
+    .from('reports')
+    .select('user_id')
+    .eq('id', reportId)
+    .single()
+    
+  if (reportError || !report) throw new Error('Report not found')
+
   const updateData: any = {
     status,
     reviewed_by: user.id,
@@ -177,6 +194,29 @@ export async function updateReportStatus(
     console.error(`Error updating report status to ${status}:`, error)
     throw new Error(error.message)
   }
+
+  // Insert notification
+  let title = 'Status Laporan Diperbarui'
+  let message = `Laporan Anda telah diperbarui menjadi ${status}.`
+  
+  if (status === 'approved') {
+    title = 'Laporan Disetujui'
+    message = 'Laporan Anda telah disetujui oleh admin dan akan segera ditindaklanjuti.'
+  } else if (status === 'rejected') {
+    title = 'Laporan Ditolak'
+    message = `Laporan Anda ditolak. Alasan: ${adminNotes || 'Tidak ada catatan khusus.'}`
+  } else if (status === 'hazardous') {
+    title = 'Laporan Diteruskan'
+    message = 'Laporan Anda dikategorikan berbahaya dan telah diteruskan ke pihak berwenang.'
+  }
+
+  await supabase.from('notifications').insert({
+    user_id: report.user_id,
+    title,
+    message,
+    type: 'report_status',
+    related_id: reportId
+  })
 
   return true
 }

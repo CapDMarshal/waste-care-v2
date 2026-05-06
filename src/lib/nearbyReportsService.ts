@@ -54,14 +54,15 @@ export async function getNearbyReports(
     // Call the RPC function directly — this is exactly what the Edge Function
     // does internally (it just proxies to this same RPC with the anon key).
     // Bypassing the Edge Function avoids all gateway auth header complexity.
-    const { data, error } = await withTimeout(() =>
-      supabase.rpc('get_nearby_reports', {
+    const { data, error } = await withTimeout(async () => {
+      const res = await supabase.rpc('get_nearby_reports', {
         p_latitude: latitude,
         p_longitude: longitude,
         p_radius_meters: radiusKm * 1000,
         p_limit: limit,
-      })
-    );
+      });
+      return res;
+    });
 
     if (error) {
       throw new Error(error.message);
