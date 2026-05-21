@@ -2,10 +2,12 @@ import Link from 'next/link'
 import { requireAdmin } from '@/lib/adminGuard'
 import { createAdminClient } from '@/utils/supabase/server'
 import { Users, CalendarDays, Clock3, Plus, ChevronRight } from 'lucide-react'
+import { ParticipantTable, ParticipantUI } from './ParticipantTable'
 
 type CampaignParticipantRow = {
   profile_id: string
   joined_at: string
+  is_attended: boolean | null
 }
 
 type CampaignAdminRow = {
@@ -14,7 +16,7 @@ type CampaignAdminRow = {
   start_time: string
   end_time: string
   max_participants: number
-  status: 'upcoming' | 'ongoing' | 'finished'
+  status: 'upcoming' | 'ongoing' | 'finished' | 'cancelled'
   organizer_name: string
   campaign_participants: CampaignParticipantRow[] | null
 }
@@ -36,12 +38,16 @@ function statusBadge(status: CampaignAdminRow['status']) {
   if (status === 'ongoing') {
     return 'bg-emerald-100 text-emerald-700 border-emerald-200'
   }
+  if (status === 'cancelled') {
+    return 'bg-red-100 text-red-700 border-red-200'
+  }
   return 'bg-gray-100 text-gray-700 border-gray-200'
 }
 
 function statusLabel(status: CampaignAdminRow['status']) {
   if (status === 'upcoming') return 'Akan Datang'
   if (status === 'ongoing') return 'Berlangsung'
+  if (status === 'cancelled') return 'Dibatalkan'
   return 'Selesai'
 }
 
@@ -49,11 +55,18 @@ export const metadata = {
   title: 'Kelola Campaign - Admin',
 }
 
-export default async function AdminCampaignManagementPage() {
+interface PageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export default async function AdminCampaignManagementPage({ searchParams }: PageProps) {
   const { supabase } = await requireAdmin()
   const adminSupabase = await createAdminClient()
+  
+  const resolvedSearchParams = await searchParams
+  const filterStatus = typeof resolvedSearchParams.status === 'string' ? resolvedSearchParams.status : 'all'
 
-  const { data, error } = await supabase
+  let query = supabase
     .from('campaigns')
     .select(`
       id,
@@ -63,9 +76,15 @@ export default async function AdminCampaignManagementPage() {
       max_participants,
       status,
       organizer_name,
-      campaign_participants(profile_id, joined_at)
+      campaign_participants(profile_id, joined_at, is_attended)
     `)
     .order('start_time', { ascending: false })
+
+  if (filterStatus !== 'all') {
+    query = query.eq('status', filterStatus)
+  }
+
+  const { data, error } = await query
 
   if (error) {
     return (
@@ -101,6 +120,13 @@ export default async function AdminCampaignManagementPage() {
     })
   )
 
+  const FILTERS = [
+    { value: 'all', label: 'Semua' },
+    { value: 'upcoming', label: 'Akan Datang' },
+    { value: 'ongoing', label: 'Berlangsung' },
+    { value: 'finished', label: 'Selesai' },
+  ]
+
   return (
     <div className="max-w-6xl mx-auto space-y-6 animate-in fade-in duration-300">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -119,18 +145,46 @@ export default async function AdminCampaignManagementPage() {
         </Link>
       </div>
 
+      {/* Filters */}
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        {FILTERS.map((f) => (
+          <Link
+            key={f.value}
+            href={f.value === 'all' ? '/admin/campaign' : `/admin/campaign?status=${f.value}`}
+            className={`px-4 py-2 rounded-xl font-medium text-sm whitespace-nowrap transition-colors ${
+              filterStatus === f.value
+                ? 'bg-green-600 text-white'
+                : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            {f.label}
+          </Link>
+        ))}
+      </div>
+
       {campaigns.length === 0 ? (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-10 text-center text-gray-500">
-          Belum ada campaign yang dibuat.
+          Belum ada campaign yang ditemukan.
         </div>
       ) : (
         <div className="space-y-4">
           {campaigns.map((campaign) => {
-            const participants = campaign.campaign_participants || []
-            const participantCount = participants.length
+            const rawParticipants = campaign.campaign_participants || []
+            const participantCount = rawParticipants.length
             const percentage = campaign.max_participants > 0
               ? Math.min((participantCount / campaign.max_participants) * 100, 100)
               : 0
+
+            const mappedParticipants: ParticipantUI[] = rawParticipants.map(p => {
+              const info = participantDirectory.get(p.profile_id)
+              return {
+                profile_id: p.profile_id,
+                joined_at: p.joined_at,
+                is_attended: p.is_attended,
+                fullName: info?.fullName || 'Tanpa Nama',
+                email: info?.email || '-',
+              }
+            })
 
             return (
               <div key={campaign.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -181,37 +235,10 @@ export default async function AdminCampaignManagementPage() {
                 <div className="p-5">
                   <h4 className="text-sm font-semibold text-gray-800 mb-3">Peserta Terdaftar</h4>
 
-                  {participants.length === 0 ? (
+                  {mappedParticipants.length === 0 ? (
                     <p className="text-sm text-gray-500">Belum ada peserta yang mendaftar.</p>
                   ) : (
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full text-sm">
-                        <thead>
-                          <tr className="text-left text-gray-500 border-b border-gray-100">
-                            <th className="py-2 pr-4 font-medium">Nama</th>
-                            <th className="py-2 pr-4 font-medium">Email</th>
-                            <th className="py-2 pr-4 font-medium">Waktu Daftar</th>
-                            <th className="py-2 pr-4 font-medium">User ID</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {participants
-                            .sort((a, b) => new Date(b.joined_at).getTime() - new Date(a.joined_at).getTime())
-                            .map((participant) => {
-                              const userInfo = participantDirectory.get(participant.profile_id)
-
-                              return (
-                                <tr key={`${campaign.id}-${participant.profile_id}`} className="border-b border-gray-50 last:border-0">
-                                  <td className="py-2.5 pr-4 text-gray-900">{userInfo?.fullName || 'Tanpa Nama'}</td>
-                                  <td className="py-2.5 pr-4 text-gray-700">{userInfo?.email || '-'}</td>
-                                  <td className="py-2.5 pr-4 text-gray-600">{formatDateTime(participant.joined_at)}</td>
-                                  <td className="py-2.5 pr-4 text-gray-500 font-mono text-xs">{participant.profile_id}</td>
-                                </tr>
-                              )
-                            })}
-                        </tbody>
-                      </table>
-                    </div>
+                    <ParticipantTable campaignId={campaign.id} participants={mappedParticipants} />
                   )}
                 </div>
               </div>

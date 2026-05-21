@@ -103,16 +103,19 @@ export interface Database {
           campaign_id: number
           profile_id: string
           joined_at: string
+          is_attended: boolean | null
         }
         Insert: {
           campaign_id: number
           profile_id: string
           joined_at?: string
+          is_attended?: boolean | null
         }
         Update: {
           campaign_id?: number
           profile_id?: string
           joined_at?: string
+          is_attended?: boolean | null
         }
       }
       reports: {
