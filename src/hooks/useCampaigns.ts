@@ -91,8 +91,7 @@ export function useCampaigns(filters?: CampaignFilters) {
       // Reset loading state on unmount/cleanup
       setLoading(false);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty deps - only run on mount
+  }, [user?.id]); // Refetch when user changes (e.g. session resolves)
 
   const generateCampaign = async (latitude: number, longitude: number, radiusKm: number) => {
     try {
