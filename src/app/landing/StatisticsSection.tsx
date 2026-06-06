@@ -116,212 +116,15 @@ function StatisticsSection() {
         {/* Header */}
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Statistik & Pencapaian
+            Data Statistik WasteCare
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Kota dengan pengelolaan sampah terbaik berdasarkan skor penyelesaian campaign dan kontribusi masyarakat
+            Statistik aksi masyarakat dalam menjaga kebersihan lingkungan
           </p>
         </div>
 
         {/* Top Cities Leaderboard */}
         <div className="max-w-5xl mx-auto">
-          <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-8 mb-8 border border-emerald-100">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center">
-                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900">Top 5 Kota Terbaik</h3>
-                <p className="text-gray-600">Berdasarkan penyelesaian campaign dan pengelolaan sampah</p>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              {loading ? (
-                // Loading skeleton
-                Array.from({ length: 5 }).map((_, index) => (
-                  <div
-                    key={index}
-                    className="bg-white rounded-xl p-6 shadow-sm animate-pulse"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 bg-gray-200 rounded-xl flex-shrink-0"></div>
-                      <div className="flex-1 space-y-3">
-                        <div className="h-6 bg-gray-200 rounded w-1/3"></div>
-                        <div className="h-2 bg-gray-200 rounded w-full"></div>
-                        <div className="grid grid-cols-3 gap-4">
-                          <div className="h-8 bg-gray-200 rounded"></div>
-                          <div className="h-8 bg-gray-200 rounded"></div>
-                          <div className="h-8 bg-gray-200 rounded"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : error ? (
-                // Error state
-                <div className="bg-red-50 rounded-xl p-12 shadow-sm text-center border border-red-200">
-                  <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <h4 className="text-lg font-semibold text-red-900 mb-2">
-                    Gagal Memuat Data
-                  </h4>
-                  <p className="text-red-700 max-w-md mx-auto mb-4">
-                    {error}
-                  </p>
-                  <button
-                    onClick={loadStatistics}
-                    className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                  >
-                    Coba Lagi
-                  </button>
-                </div>
-              ) : topCities.length === 0 ? (
-                // Empty state
-                <div className="bg-white rounded-xl p-12 shadow-sm text-center">
-                  <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  </div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                    Belum Ada Data Kota
-                  </h4>
-                  <p className="text-gray-600 max-w-md mx-auto">
-                    Data statistik kota akan muncul setelah ada laporan sampah dan campaign yang diselesaikan di berbagai kota.
-                  </p>
-                </div>
-              ) : (
-                topCities.map((city) => (
-                  <div
-                    key={city.rank}
-                    className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex items-center gap-4">
-                      {/* Rank Badge */}
-                      <div
-                        className={`w-14 h-14 ${getRankBadgeColor(city.rank)} rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg`}
-                      >
-                        {getRankIcon(city.rank)}
-                        <span className="text-2xl font-bold text-white">{city.rank}</span>
-                      </div>
-
-                      {/* City Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="mb-2">
-                          <h4 className="text-xl font-bold text-gray-900 truncate" title={city.city}>{city.city}</h4>
-                          <span className="text-sm text-gray-500 truncate block" title={city.province}>{city.province}</span>
-                        </div>
-
-                        {/* Progress Bar */}
-                        <div className="mb-3">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm text-gray-600 truncate">Skor Kebersihan</span>
-                            <span className="text-sm font-semibold text-emerald-600 ml-2 flex-shrink-0">{city.score.toFixed(2)}%</span>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div
-                              className="bg-gradient-to-r from-emerald-500 to-teal-500 h-2 rounded-full transition-all"
-                              style={{ width: `${Math.min(city.score, 100)}%` }}
-                            />
-                          </div>
-                        </div>
-
-                        {/* Statistics */}
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <div className="text-xs text-gray-600">Jumlah Campaign</div>
-                            <div className="text-lg font-bold text-emerald-600">{city.completedCampaigns}</div>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <div className="text-xs text-gray-600">Laporan Aktif</div>
-                            <div className="text-lg font-bold text-blue-600">{city.activeReports}</div>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <div className="text-xs text-gray-600">Area Dibersihkan</div>
-                            <div className="text-lg font-bold text-orange-600">{city.cleanedAreas}</div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Trophy for top 3 */}
-                      {city.rank <= 3 && (
-                        <div className="hidden md:block">
-                          <div className="text-6xl opacity-20">
-                            {city.rank === 1 && '🏆'}
-                            {city.rank === 2 && '🥈'}
-                            {city.rank === 3 && '🥉'}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-
-          {/* Achievement Cards */}
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h4 className="text-3xl font-bold text-gray-900 mb-2">
-                  {loading ? (
-                    <div className="animate-pulse h-9 w-24 bg-gray-200 rounded mx-auto"></div>
-                  ) : (
-                    overallStats.totalCampaignsCompleted.toLocaleString('id-ID')
-                  )}
-                </h4>
-                <p className="text-gray-600">Jumlah Campaign</p>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                </div>
-                <h4 className="text-3xl font-bold text-gray-900 mb-2">
-                  {loading ? (
-                    <div className="animate-pulse h-9 w-24 bg-gray-200 rounded mx-auto"></div>
-                  ) : (
-                    overallStats.totalParticipants.toLocaleString('id-ID')
-                  )}
-                </h4>
-                <p className="text-gray-600">Partisipan Aktif</p>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                  </svg>
-                </div>
-                <h4 className="text-3xl font-bold text-gray-900 mb-2">
-                  {loading ? (
-                    <div className="animate-pulse h-9 w-24 bg-gray-200 rounded mx-auto"></div>
-                  ) : (
-                    overallStats.totalCleanedAreas.toLocaleString('id-ID')
-                  )}
-                </h4>
-                <p className="text-gray-600">Area Dibersihkan</p>
-              </div>
-            </div>
-          </div>
 
           {/* Waste Type Statistics */}
           <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-8 border border-blue-100">
@@ -407,7 +210,7 @@ function StatisticsSection() {
             </div>
           </div>
 
-          {/* Info */}
+          {/* Info
           <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-xl p-6">
             <div className="flex items-start gap-4">
               <svg className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -422,7 +225,7 @@ function StatisticsSection() {
                 </p>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </section>
