@@ -11,7 +11,7 @@
 //   notes?             string
 //   waste_type?        'organik'|'anorganik'|'campuran'   (AI-generated if omitted)
 //   hazard_risk?       'tidak_ada'|'rendah'|'menengah'|'tinggi'  (AI-generated if omitted)
-//   waste_volume?      'kurang_dari_30kg'|'30_50kg'|'50_100kg'|'lebih_dari_100kg'
+//   waste_volume?      '1_pickup'|'1_truk_kecil'|'1_truk_besar'|'lebih_dari_1_truk_besar'
 //   location_category? 'sungai'|'pinggir_jalan'|'area_publik'|'tanah_kosong'|'lainnya'
 //
 // Response:
@@ -36,7 +36,7 @@ const GEMINI_MODEL = 'gemini-2.5-flash';
 // ── Valid enum values ─────────────────────────────────────────
 const VALID_WASTE_TYPES = ['organik', 'anorganik', 'campuran'] as const;
 const VALID_HAZARD_RISKS = ['tidak_ada', 'rendah', 'menengah', 'tinggi'] as const;
-const VALID_WASTE_VOLUMES = ['kurang_dari_30kg', '30_50kg', '50_100kg', 'lebih_dari_100kg'] as const;
+const VALID_WASTE_VOLUMES = ['1_pickup', '1_truk_kecil', '1_truk_besar', 'lebih_dari_1_truk_besar'] as const;
 const VALID_LOCATION_CATS = ['sungai', 'pinggir_jalan', 'area_publik', 'tanah_kosong', 'lainnya'] as const;
 
 type WasteType = typeof VALID_WASTE_TYPES[number];
@@ -188,7 +188,7 @@ JSON schema:
   "notes": string,              // 1-2 sentence explanation in Indonesian
   "waste_type": "organik"|"anorganik"|"campuran",  // organic, inorganic, or mixed
   "hazard_risk": "tidak_ada"|"rendah"|"menengah"|"tinggi",  // hazard level
-  "waste_volume": "kurang_dari_30kg"|"30_50kg"|"50_100kg"|"lebih_dari_100kg",
+  "waste_volume": "1_pickup"|"1_truk_kecil"|"1_truk_besar"|"lebih_dari_1_truk_besar",
   "location_category": "sungai"|"pinggir_jalan"|"area_publik"|"tanah_kosong"|"lainnya"
 }
 
@@ -202,11 +202,11 @@ Classification guide:
     rendah    = minor risk (sharp edges, mild chemicals visible on packaging)
     menengah  = moderate risk (batteries, paint containers, medical packaging)
     tinggi    = high risk (chemical drums, syringes, industrial waste, biohazard)
-- waste_volume: (NOTE: Estimate by WEIGHT, not just surface area. Scattered light plastics take up space but are very light)
-    kurang_dari_30kg = Small amount or scattered street litter. Even if scattered over a wide area, light plastics/wrappers are < 30kg. (e.g., 1-3 regular household trash bags)
-    30_50kg          = Medium amount. A dense, concentrated pile of heavy waste, or 4-6 large filled trash bags.
-    50_100kg         = Large amount. An overflowing large dumpster, or a heavy pile of mixed waste (wood, dirt, many bags).
-    lebih_dari_100kg = Massive amount. Illegal dumping ground blocking a path, full pickup truck load of dense waste.
+- waste_volume: (NOTE: Estimate physical volume based on Indonesian common vehicles)
+    1_pickup                = Small amount, fits in a standard open pickup truck (e.g., Suzuki Carry, L300, or a few trash bags/carts).
+    1_truk_kecil            = Medium amount, fits in a small dump truck (e.g., Colt Diesel engkel/4 wheels).
+    1_truk_besar            = Large amount, fits in a large dump truck (e.g., Fuso/6+ wheels), like an overflowing large TPS/dumpster.
+    lebih_dari_1_truk_besar = Massive amount, major illegal dumping ground or river completely blocked by waste, requires multiple large trucks.
 - If is_waste is false, still return valid enum values as defaults but set confidence to "rendah".
 `.trim();
 
@@ -258,7 +258,7 @@ Classification guide:
   // Sanitise/default any out-of-range values
   if (!VALID_WASTE_TYPES.includes(parsed.waste_type)) parsed.waste_type = 'campuran';
   if (!VALID_HAZARD_RISKS.includes(parsed.hazard_risk)) parsed.hazard_risk = 'tidak_ada';
-  if (!VALID_WASTE_VOLUMES.includes(parsed.waste_volume)) parsed.waste_volume = 'kurang_dari_30kg';
+  if (!VALID_WASTE_VOLUMES.includes(parsed.waste_volume)) parsed.waste_volume = '1_pickup';
   if (!VALID_LOCATION_CATS.includes(parsed.location_category)) parsed.location_category = 'lainnya';
 
   return parsed;

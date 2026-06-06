@@ -1,14 +1,14 @@
 export type WasteVolume =
-  | 'kurang_dari_30kg'
-  | '30_50kg'
-  | '50_100kg'
-  | 'lebih_dari_100kg';
+  | '1_pickup'
+  | '1_truk_kecil'
+  | '1_truk_besar'
+  | 'lebih_dari_1_truk_besar';
 
 export const WASTE_VOLUME_LABELS: Record<WasteVolume, string> = {
-  kurang_dari_30kg: 'Kurang dari 30kg',
-  '30_50kg': '30-50kg',
-  '50_100kg': '50-100kg',
-  lebih_dari_100kg: 'Lebih dari 100kg',
+  '1_pickup': '1 pickup',
+  '1_truk_kecil': '1 truk kecil',
+  '1_truk_besar': '1 truk besar',
+  'lebih_dari_1_truk_besar': 'Lebih dari 1 truk besar',
 };
 
 export function formatWasteVolumeLabel(volume: string | null | undefined): string {
