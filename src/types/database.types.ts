@@ -130,7 +130,7 @@ export interface Database {
           hazard_risk: 'tidak_ada' | 'rendah' | 'menengah' | 'tinggi'
           notes: string | null
           location: string // PostGIS geography type (returned as GeoJSON or WKT string)
-          status: 'pending' | 'approved' | 'rejected' | 'hazardous'
+          status: 'pending' | 'approved' | 'rejected' | 'hazardous' | 'finished'
           reviewed_by: string | null
           reviewed_at: string | null
           admin_notes: string | null
@@ -146,7 +146,7 @@ export interface Database {
           hazard_risk?: 'tidak_ada' | 'rendah' | 'menengah' | 'tinggi' // defaults to 'tidak_ada'
           notes?: string | null
           location: string // PostGIS geography type
-          status?: 'pending' | 'approved' | 'rejected' | 'hazardous'
+          status?: 'pending' | 'approved' | 'rejected' | 'hazardous' | 'finished'
           reviewed_by?: string | null
           reviewed_at?: string | null
           admin_notes?: string | null
@@ -162,7 +162,7 @@ export interface Database {
           hazard_risk?: 'tidak_ada' | 'rendah' | 'menengah' | 'tinggi'
           notes?: string | null
           location?: string // PostGIS geography type
-          status?: 'pending' | 'approved' | 'rejected' | 'hazardous'
+          status?: 'pending' | 'approved' | 'rejected' | 'hazardous' | 'finished'
           reviewed_by?: string | null
           reviewed_at?: string | null
           admin_notes?: string | null
@@ -217,7 +217,7 @@ export interface Database {
           location_category: string
           hazard_risk: 'tidak_ada' | 'rendah' | 'menengah' | 'tinggi'
           notes: string | null
-          status: 'pending' | 'approved' | 'rejected' | 'hazardous'
+          status: 'pending' | 'approved' | 'rejected' | 'hazardous' | 'finished'
           latitude: number
           longitude: number
         }[]
@@ -284,7 +284,7 @@ export interface Database {
           location_category: string
           hazard_risk: 'tidak_ada' | 'rendah' | 'menengah' | 'tinggi'
           notes: string | null
-          status: 'pending' | 'approved' | 'rejected' | 'hazardous'
+          status: 'pending' | 'approved' | 'rejected' | 'hazardous' | 'finished'
           admin_notes: string | null
           latitude: number
           longitude: number
@@ -302,7 +302,7 @@ export interface Database {
           location_category: string
           hazard_risk: 'tidak_ada' | 'rendah' | 'menengah' | 'tinggi'
           notes: string | null
-          status: 'pending' | 'approved' | 'rejected' | 'hazardous'
+          status: 'pending' | 'approved' | 'rejected' | 'hazardous' | 'finished'
           latitude: number
           longitude: number
         }[]
@@ -326,7 +326,7 @@ export interface Database {
       campaign_status_enum: 'upcoming' | 'ongoing' | 'finished' | 'cancelled'
       notification_type_enum: 'report_status' | 'campaign_reminder' | 'campaign_update' | 'system'
       campaign_organizer_type_enum: 'personal' | 'organization'
-      report_status_enum: 'pending' | 'approved' | 'rejected' | 'hazardous'
+      report_status_enum: 'pending' | 'approved' | 'rejected' | 'hazardous' | 'finished'
       role_enum: 'user' | 'admin'
     }
   }

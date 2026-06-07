@@ -1,6 +1,6 @@
 'use server'
 
-import { approveReport, rejectReport, forwardHazardousReport } from '@/lib/adminService'
+import { approveReport, rejectReport, forwardHazardousReport, updateReportVolume, finishReport } from '@/lib/adminService'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
@@ -23,6 +23,19 @@ export async function forwardHazardousAction(reportId: number) {
   revalidatePath('/admin')
   revalidatePath('/admin/laporan')
   revalidatePath(`/admin/laporan/${reportId}`)
+}
+
+export async function finishAction(reportId: number) {
+  await finishReport(reportId)
+  revalidatePath('/admin')
+  revalidatePath('/admin/laporan')
+  revalidatePath(`/admin/laporan/${reportId}`)
+}
+
+export async function updateVolumeAction(reportId: number, wasteVolume: string) {
+  await updateReportVolume(reportId, wasteVolume)
+  revalidatePath(`/admin/laporan/${reportId}`)
+  revalidatePath('/admin/laporan')
 }
 
 export async function redirectToCampaign(reportId: number) {

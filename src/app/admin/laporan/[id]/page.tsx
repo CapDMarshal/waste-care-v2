@@ -2,12 +2,13 @@ import { requireAdmin } from '@/lib/adminGuard'
 import { getReportDetailAdmin } from '@/lib/adminService'
 import { parseWKTPoint } from '@/lib/locationParser'
 import AdminLocationSection from './AdminLocationSection'
+import AdminVolumeDropdown from './AdminVolumeDropdown'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { formatWasteVolumeLabel } from '../../../../lib/wasteVolume'
 import { ArrowLeft, CheckCircle, AlertTriangle, XCircle, MapPin, Calendar } from 'lucide-react'
-import { approveAction, rejectAction, forwardHazardousAction } from './actions'
+import { approveAction, rejectAction, forwardHazardousAction, finishAction } from './actions'
 
 // Server component
 export default async function AdminReportDetailPage({ 
@@ -107,10 +108,7 @@ export default async function AdminReportDetailPage({
           <div className="space-y-4 text-sm">
             <div>
               <p className="text-gray-500 mb-1">Volume Estimasi</p>
-              <p className="font-medium text-gray-900 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-green-500 block"></span>
-                {formatWasteVolumeLabel(report.waste_volume)}
-              </p>
+              <AdminVolumeDropdown reportId={report.id} initialVolume={report.waste_volume} disabled={report.status !== 'pending'} />
             </div>
             
             <div>
@@ -177,15 +175,50 @@ export default async function AdminReportDetailPage({
                 <CheckCircle className="shrink-0 mt-0.5" size={18} />
                 <div>
                   <p className="font-semibold">Laporan Disetujui</p>
-                  <p className="opacity-80">Anda telah menyetujui laporan ini. Langkah selanjutnya adalah membuat campaign kebersihan.</p>
+                  <p className="opacity-80">
+                    {report.campaigns && report.campaigns.length > 0
+                      ? 'Laporan ini sudah memiliki campaign kebersihan. Anda dapat membuat campaign lagi atau menyelesaikan laporan jika sudah bersih.'
+                      : 'Anda telah menyetujui laporan ini. Langkah selanjutnya adalah membuat campaign kebersihan.'}
+                  </p>
                 </div>
               </div>
-              <Link 
-                href={`/admin/campaign/buat?reportId=${report.id}`}
-                className="w-full flex justify-center items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-xl transition-colors"
-              >
-                Buat Campaign Kebersihan
-              </Link>
+              
+              {report.campaigns && report.campaigns.length > 0 ? (
+                <div className="flex flex-col gap-3">
+                  <Link 
+                    href={`/admin/campaign/buat?reportId=${report.id}`}
+                    className="w-full flex justify-center items-center gap-2 bg-white border border-green-600 text-green-700 hover:bg-green-50 font-medium py-3 px-4 rounded-xl transition-colors"
+                  >
+                    Buat Campaign Kebersihan
+                  </Link>
+                  <form action={async () => { 'use server'; await finishAction(report.id) }}>
+                    <button type="submit" className="w-full flex justify-center items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-xl transition-colors">
+                      <CheckCircle size={18} />
+                      Selesaikan Laporan
+                    </button>
+                  </form>
+                </div>
+              ) : (
+                <Link 
+                  href={`/admin/campaign/buat?reportId=${report.id}`}
+                  className="w-full flex justify-center items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-xl transition-colors"
+                >
+                  Buat Campaign Kebersihan
+                </Link>
+              )}
+            </div>
+          )}
+
+          {/* Finished state */}
+          {report.status === 'finished' && (
+            <div className="pt-6 border-t border-gray-100">
+              <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded-xl text-sm flex items-start gap-3">
+                <CheckCircle className="shrink-0 mt-0.5" size={18} />
+                <div>
+                  <p className="font-semibold">Laporan Selesai</p>
+                  <p className="opacity-80">Laporan ini telah ditindaklanjuti dan dibersihkan secara tuntas.</p>
+                </div>
+              </div>
             </div>
           )}
 

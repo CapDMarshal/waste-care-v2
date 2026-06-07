@@ -144,7 +144,14 @@ export async function getReportDetailAdmin(reportId: number) {
 
   const { data, error } = await supabase
     .from('reports')
-    .select('*')
+    .select(`
+      *,
+      campaigns (
+        id,
+        title,
+        status
+      )
+    `)
     .eq('id', reportId)
     .single()
 
@@ -231,4 +238,27 @@ export async function rejectReport(reportId: number, adminNotes: string) {
 
 export async function forwardHazardousReport(reportId: number) {
   return updateReportStatus(reportId, 'hazardous')
+}
+
+export async function finishReport(reportId: number) {
+  return updateReportStatus(reportId, 'finished')
+}
+
+export async function updateReportVolume(reportId: number, wasteVolume: string) {
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  const { error } = await supabase
+    .from('reports')
+    .update({ waste_volume: wasteVolume })
+    .eq('id', reportId)
+
+  if (error) {
+    console.error(`Error updating report volume to ${wasteVolume}:`, error)
+    throw new Error(error.message)
+  }
+
+  return true
 }
