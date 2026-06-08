@@ -32,37 +32,37 @@ export default async function AdminLayout({
         </div>
 
         <nav className="flex-1 space-y-2 flex flex-row md:flex-col overflow-x-auto md:overflow-visible pb-2 md:pb-0 hide-scrollbar">
-          <Link 
-            href="/admin" 
+          <Link
+            href="/admin"
             className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-green-700 transition-colors shrink-0"
           >
             <LayoutDashboard size={20} />
             <span className="font-medium hidden md:inline">Dashboard</span>
           </Link>
-          
-          <Link 
-            href="/admin/laporan" 
+
+          <Link
+            href="/admin/laporan"
             className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-green-700 transition-colors shrink-0"
           >
             <FileText size={20} />
             <span className="font-medium hidden md:inline">Daftar Laporan</span>
           </Link>
-          
-          <Link 
-            href="/admin/campaign" 
+
+          <Link
+            href="/admin/campaign"
             className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-green-700 transition-colors shrink-0"
           >
             <Flag size={20} />
             <span className="font-medium hidden md:inline">Kelola Campaign</span>
           </Link>
 
-          <Link 
+          {/* <Link 
             href="/admin/campaign/buat" 
             className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-green-700 transition-colors shrink-0"
           >
             <Flag size={20} />
             <span className="font-medium hidden md:inline">Buat Campaign</span>
-          </Link>
+          </Link> */}
         </nav>
 
         <div className="mt-auto hidden md:block pt-4 border-t border-green-700/50">
