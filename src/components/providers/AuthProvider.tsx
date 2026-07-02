@@ -45,10 +45,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const initAuth = async () => {
       try {
-        const { data: { user: currentUser } } = await getUserWithTimeout();
+        // getSession() reads from cookie/JWT locally — no DB round-trip
+        const { data: { session } } = await Promise.race([
+          supabase.auth.getSession(),
+          new Promise<never>((_, reject) => {
+            setTimeout(() => reject(new Error('Auth getSession timeout')), 7000);
+          }),
+        ]);
         if (cancelled) return;
 
-        setUser(currentUser ?? null);
+        setUser(session?.user ?? null);
       } catch (error) {
         if (!cancelled) {
           console.error('Auth init error:', error);
