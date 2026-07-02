@@ -31,6 +31,21 @@ function formatDateTime(dateValue: string) {
   })
 }
 
+function determineCampaignStatus(
+  startTime: string,
+  endTime: string,
+  dbStatus: CampaignAdminRow['status']
+): CampaignAdminRow['status'] {
+  // Respect explicit finished/cancelled from DB
+  if (dbStatus === 'finished' || dbStatus === 'cancelled') return dbStatus;
+  const now = new Date();
+  const start = new Date(startTime);
+  const end = new Date(endTime);
+  if (now < start) return 'upcoming';
+  if (now >= start && now <= end) return 'ongoing';
+  return 'finished';
+}
+
 function statusBadge(status: CampaignAdminRow['status']) {
   if (status === 'upcoming') {
     return 'bg-blue-100 text-blue-700 border-blue-200'
@@ -66,7 +81,9 @@ export default async function AdminCampaignManagementPage({ searchParams }: Page
   const resolvedSearchParams = await searchParams
   const filterStatus = typeof resolvedSearchParams.status === 'string' ? resolvedSearchParams.status : 'all'
 
-  let query = supabase
+  // Always fetch all campaigns – filter by computed status in JS
+  // (DB `status` column is never updated, so we compute status from start/end times)
+  const { data, error } = await supabase
     .from('campaigns')
     .select(`
       id,
@@ -80,12 +97,6 @@ export default async function AdminCampaignManagementPage({ searchParams }: Page
     `)
     .order('start_time', { ascending: false })
 
-  if (filterStatus !== 'all') {
-    query = query.eq('status', filterStatus)
-  }
-
-  const { data, error } = await query
-
   if (error) {
     return (
       <div className="max-w-6xl mx-auto">
@@ -96,7 +107,11 @@ export default async function AdminCampaignManagementPage({ searchParams }: Page
     )
   }
 
-  const campaigns = (data || []) as CampaignAdminRow[]
+  // Apply computed status filter
+  const allCampaigns = (data || []) as CampaignAdminRow[]
+  const campaigns = filterStatus === 'all'
+    ? allCampaigns
+    : allCampaigns.filter(c => determineCampaignStatus(c.start_time, c.end_time, c.status) === filterStatus)
 
   const participantIds = Array.from(
     new Set(
@@ -169,6 +184,8 @@ export default async function AdminCampaignManagementPage({ searchParams }: Page
       ) : (
         <div className="space-y-4">
           {campaigns.map((campaign) => {
+            // Recalculate status based on current time instead of relying on stale DB value
+            const computedStatus = determineCampaignStatus(campaign.start_time, campaign.end_time, campaign.status);
             const rawParticipants = campaign.campaign_participants || []
             const participantCount = rawParticipants.length
             const percentage = campaign.max_participants > 0
@@ -193,8 +210,8 @@ export default async function AdminCampaignManagementPage({ searchParams }: Page
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="text-lg font-bold text-gray-900">{campaign.title}</h3>
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${statusBadge(campaign.status)}`}>
-                          {statusLabel(campaign.status)}
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${statusBadge(computedStatus)}`}>
+                          {statusLabel(computedStatus)}
                         </span>
                       </div>
 
