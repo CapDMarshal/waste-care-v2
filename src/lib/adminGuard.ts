@@ -15,10 +15,16 @@ export async function requireAdmin() {
     redirect('/login')
   }
 
-  // Check the role
+  // Check app_metadata first (no extra DB call needed if role is in JWT)
+  const metaRole = (user.app_metadata as any)?.role;
+  if (metaRole === 'admin') {
+    return { user, supabase }
+  }
+
+  // Fallback: check DB with minimal select (role only)
   const { data: profile } = await supabase
     .from('profiles')
-    .select('*')
+    .select('role')
     .eq('id', user.id)
     .single()
 

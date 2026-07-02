@@ -60,7 +60,20 @@ export function useLogin() {
       }
 
       if (data.user) {
-        // Fetch role to determine redirect
+        // Check role from user metadata first (no extra DB call)
+        // Falls back to DB query only if metadata not set
+        const metaRole = (data.user.app_metadata as any)?.role
+          || (data.user.user_metadata as any)?.role;
+
+        if (metaRole === 'admin') {
+          router.push('/admin');
+          return;
+        } else if (metaRole) {
+          router.push('/dashboard');
+          return;
+        }
+
+        // Fallback: fetch role from DB (first login before metadata is set)
         const { data: profile } = await supabase
           .from('profiles')
           .select('role')
