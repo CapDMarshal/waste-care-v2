@@ -7,6 +7,10 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    /*
+     * Only run middleware on app pages that need session refresh.
+     * Skip: _next/static, _next/image, favicon, public files, API routes.
+     */
+    '/((?!_next/static|_next/image|favicon.ico|icons/|images/|api/|.*\.(?:svg|png|jpg|jpeg|gif|webp|ico|json|txt|xml)$).*)',
   ],
 }

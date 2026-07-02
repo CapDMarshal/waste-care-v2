@@ -15,6 +15,7 @@ export type ParticipantUI = {
 interface ParticipantTableProps {
   campaignId: number
   participants: ParticipantUI[]
+  isFinished?: boolean
 }
 
 function formatDateTime(dateValue: string) {
@@ -27,7 +28,7 @@ function formatDateTime(dateValue: string) {
   })
 }
 
-export function ParticipantTable({ campaignId, participants }: ParticipantTableProps) {
+export function ParticipantTable({ campaignId, participants, isFinished = false }: ParticipantTableProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
 
@@ -64,30 +65,43 @@ export function ParticipantTable({ campaignId, participants }: ParticipantTableP
               <td className="py-2.5 pr-4 text-gray-600">{formatDateTime(p.joined_at)}</td>
               <td className="py-2.5 pr-4 text-gray-500 font-mono text-xs">{p.profile_id}</td>
               <td className="py-2.5 pr-4">
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleToggle(p.profile_id, true)}
-                    disabled={isPending || p.is_attended === true}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                      p.is_attended === true
-                        ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
-                        : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                    } disabled:opacity-100`}
-                  >
-                    <Check size={14} /> Hadir
-                  </button>
-                  <button
-                    onClick={() => handleToggle(p.profile_id, false)}
-                    disabled={isPending || p.is_attended === false}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                      p.is_attended === false
-                        ? 'bg-red-100 text-red-700 hover:bg-red-200'
-                        : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                    } disabled:opacity-100`}
-                  >
-                    <X size={14} /> Tidak Hadir
-                  </button>
-                </div>
+                {isFinished ? (
+                  // Read-only attendance badge when campaign is finished
+                  <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium ${
+                    p.is_attended === true
+                      ? 'bg-emerald-100 text-emerald-700'
+                      : p.is_attended === false
+                      ? 'bg-red-100 text-red-700'
+                      : 'bg-gray-100 text-gray-500'
+                  }`}>
+                    {p.is_attended === true ? <><Check size={14} /> Hadir</> : p.is_attended === false ? <><X size={14} /> Tidak Hadir</> : '–'}
+                  </span>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleToggle(p.profile_id, true)}
+                      disabled={isPending || p.is_attended === true}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                        p.is_attended === true
+                          ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                          : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                      } disabled:opacity-100`}
+                    >
+                      <Check size={14} /> Hadir
+                    </button>
+                    <button
+                      onClick={() => handleToggle(p.profile_id, false)}
+                      disabled={isPending || p.is_attended === false}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                        p.is_attended === false
+                          ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                          : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                      } disabled:opacity-100`}
+                    >
+                      <X size={14} /> Tidak Hadir
+                    </button>
+                  </div>
+                )}
               </td>
             </tr>
           ))}

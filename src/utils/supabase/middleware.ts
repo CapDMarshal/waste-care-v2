@@ -27,7 +27,13 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  await supabase.auth.getUser()
+  // Use getSession() instead of getUser() - reads from the cookie/JWT locally
+  // without hitting the Supabase database on every request, preventing Disk IO exhaustion.
+  // getUser() does a full DB round-trip; getSession() only validates the local JWT.
+  await Promise.race([
+    supabase.auth.getSession(),
+    new Promise(resolve => setTimeout(resolve, 3000)),
+  ])
 
   // Prevent stale bfcache/page-cache restores on protected app routes.
   // This forces browser back/forward to re-request the page state.

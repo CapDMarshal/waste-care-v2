@@ -255,7 +255,7 @@ export default async function AdminCampaignManagementPage({ searchParams }: Page
                   {mappedParticipants.length === 0 ? (
                     <p className="text-sm text-gray-500">Belum ada peserta yang mendaftar.</p>
                   ) : (
-                    <ParticipantTable campaignId={campaign.id} participants={mappedParticipants} />
+                    <ParticipantTable campaignId={campaign.id} participants={mappedParticipants} isFinished={computedStatus === 'finished'} />
                   )}
                 </div>
               </div>
