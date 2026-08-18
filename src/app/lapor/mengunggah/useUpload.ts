@@ -90,9 +90,8 @@ export function useUpload({ reportData, setAiValidation, setNotes, setReportId }
 
         // Handle validation failure (not waste)
         if (result.validation && !result.validation.isWaste) {
-          const notes = result.validation.notes || 'Gambar tidak terdeteksi sebagai sampah';
           throw new Error(
-            `${result.message || 'Validasi gambar gagal'}\n\nCatatan: ${notes}`
+            result.error || result.message || 'Gambar tidak terdeteksi sebagai sampah. Pastikan gambar menampilkan lokasi sampah dengan jelas.'
           );
         }
 
@@ -124,6 +123,13 @@ export function useUpload({ reportData, setAiValidation, setNotes, setReportId }
         }
 
         throw new Error(errorMsg);
+      }
+
+      // Defensive check: if result is marked success but AI determined it is not waste
+      if (result.data?.validation && result.data.validation.isWaste === false) {
+        throw new Error(
+          result.error || 'Gambar tidak terdeteksi sebagai sampah. Pastikan gambar menampilkan lokasi sampah dengan jelas.'
+        );
       }
 
       // Save AI validation result to context
@@ -173,7 +179,7 @@ export function useUpload({ reportData, setAiValidation, setNotes, setReportId }
           errorMessage = 'Koneksi terlalu lambat atau server sedang sibuk.\n\nSaran:\n• Periksa koneksi internet Anda\n• Coba gunakan foto dengan ukuran lebih kecil\n• Coba lagi beberapa saat';
         } else if (err.message.includes('Network request failed') || err.message.includes('Failed to fetch') || err.message.includes('Network error')) {
           errorMessage = 'Tidak ada koneksi internet.\n\nMohon periksa koneksi internet Anda dan coba lagi.';
-        } else if (err.message.includes('Session expired') || err.message.includes('Session refresh failed')) {
+        } else if (err.message.includes('Session expired') || err.message.includes('Session refresh failed') || err.message.includes('Sesi anda telah berakhir') || err.message.includes('Sesi tidak valid')) {
           errorMessage = 'Sesi login Anda telah berakhir.\n\nMohon login kembali untuk melanjutkan.';
         } else if (err.message.includes('Ukuran gambar terlalu besar')) {
           errorMessage = err.message + '\n\nMohon gunakan foto dengan resolusi lebih rendah.';

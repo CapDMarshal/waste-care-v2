@@ -40,7 +40,7 @@ AI diinstruksikan untuk merespons **HANYA** dengan objek JSON murni (tanpa markd
 Setelah menerima respons JSON dari Vertex AI:
 1. Kode melakukan ekstraksi dan *repair* JSON jika AI secara tidak sengaja menyelipkan teks tambahan.
 2. Dilakukan pengecekan enum (*sanitization*). Jika AI mengembalikan nilai di luar kategori yang diizinkan (misalnya `hazard_risk: "berbahaya_sekali"`), sistem akan mengubahnya menjadi nilai *default* (seperti `"tidak_ada"`).
-3. **Pencegahan Penyalahgunaan:** Jika AI mendeteksi gambar tersebut bukan sampah (`is_waste: false`) dengan tingkat kepercayaan (`confidence`) `"tinggi"`, proses langsung dihentikan dan pengguna mendapat peringatan error.
+3. **Pencegahan Penyalahgunaan:** Jika AI mendeteksi gambar tersebut bukan sampah (`is_waste: false`), proses langsung dihentikan dan sistem mengembalikan HTTP 422 dengan pesan error "Gambar tidak terdeteksi sebagai sampah. Pastikan gambar menampilkan lokasi sampah dengan jelas." sehingga aplikasi menampilkan halaman Gagal Mengunggah.
 
 ### E. Penyimpanan & Notifikasi
 Jika gambar lolos verifikasi AI:

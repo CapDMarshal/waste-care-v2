@@ -183,9 +183,9 @@ Analyze this image and respond ONLY with a valid JSON object — no markdown, no
 
 JSON schema:
 {
-  "is_waste": boolean,           // true if the image clearly contains waste/trash
-  "confidence": "tinggi"|"menengah"|"rendah",
-  "notes": string,              // 1-2 sentence explanation in Indonesian
+  "is_waste": boolean,           // true if the image clearly contains waste/trash; false if the image does NOT contain waste/trash (e.g., human selfies/faces, animals, clean scenery, documents, clean indoor spaces, vehicles without waste, etc.)
+  "confidence": "tinggi"|"menengah"|"rendah", // confidence level in your determination
+  "notes": string,              // 1-2 sentence explanation in Indonesian. If is_waste is false, explain why the image does not show waste.
   "waste_type": "organik"|"anorganik"|"campuran",  // organic, inorganic, or mixed
   "hazard_risk": "tidak_ada"|"rendah"|"menengah"|"tinggi",  // hazard level
   "waste_volume": "1_pickup"|"1_truk_kecil"|"1_truk_besar"|"lebih_dari_1_truk_besar",
@@ -193,6 +193,9 @@ JSON schema:
 }
 
 Classification guide:
+- is_waste:
+    true  = There is waste, litter, garbage, or illegal dumping visible.
+    false = No waste is visible (e.g. photos of people, animals, clean streets, buildings, nature, food on a plate, selfies, etc.).
 - waste_type:
     organik   = biodegradable (food waste, leaves, vegetables, etc.)
     anorganik = non-biodegradable (plastic, glass, metal, paper, etc.)
@@ -207,7 +210,7 @@ Classification guide:
     1_truk_kecil            = Medium amount, fits in a small dump truck (e.g., Colt Diesel engkel/4 wheels).
     1_truk_besar            = Large amount, fits in a large dump truck (e.g., Fuso/6+ wheels), like an overflowing large TPS/dumpster.
     lebih_dari_1_truk_besar = Massive amount, major illegal dumping ground or river completely blocked by waste, requires multiple large trucks.
-- If is_waste is false, still return valid enum values as defaults but set confidence to "rendah".
+- If is_waste is false, set waste_type to "campuran", hazard_risk to "tidak_ada", waste_volume to "1_pickup", and location_category to "lainnya".
 `.trim();
 
   const accessToken = await getVertexAIToken(serviceAccountJson);
@@ -254,6 +257,10 @@ Classification guide:
     const preview = rawText.trim().slice(0, 200).replace(/\s+/g, ' ');
     throw new Error(`Vertex AI tidak mengembalikan JSON yang valid${preview ? `: ${preview}` : ''}`);
   }
+
+  // Ensure is_waste is strictly a boolean
+  const rawIsWaste = parsed.is_waste as unknown;
+  parsed.is_waste = rawIsWaste === true || rawIsWaste === 'true';
 
   // Sanitise/default any out-of-range values
   if (!VALID_WASTE_TYPES.includes(parsed.waste_type)) parsed.waste_type = 'campuran';
@@ -369,7 +376,7 @@ serve(async (req: Request) => {
   }
 
   // If AI says this is not waste, reject
-  if (!aiResult.is_waste && aiResult.confidence === 'tinggi') {
+  if (!aiResult.is_waste) {
     return json({
       success: false,
       error: 'Gambar tidak terdeteksi sebagai sampah. Pastikan gambar menampilkan lokasi sampah dengan jelas.',
