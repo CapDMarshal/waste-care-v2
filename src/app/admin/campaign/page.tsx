@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { requireAdmin } from '@/lib/adminGuard'
 import { createAdminClient } from '@/utils/supabase/server'
-import { Users, CalendarDays, Clock3, Plus, ChevronRight } from 'lucide-react'
+import { Users, CalendarDays, Clock3, Plus, ChevronRight, Sparkles, Inbox, ExternalLink } from 'lucide-react'
 import { ParticipantTable, ParticipantUI } from './ParticipantTable'
 
 type CampaignParticipantRow = {
@@ -36,7 +36,6 @@ function determineCampaignStatus(
   endTime: string,
   dbStatus: CampaignAdminRow['status']
 ): CampaignAdminRow['status'] {
-  // Respect explicit finished/cancelled from DB
   if (dbStatus === 'finished' || dbStatus === 'cancelled') return dbStatus;
   const now = new Date();
   const start = new Date(startTime);
@@ -47,27 +46,21 @@ function determineCampaignStatus(
 }
 
 function statusBadge(status: CampaignAdminRow['status']) {
-  if (status === 'upcoming') {
-    return 'bg-blue-100 text-blue-700 border-blue-200'
-  }
-  if (status === 'ongoing') {
-    return 'bg-emerald-100 text-emerald-700 border-emerald-200'
-  }
-  if (status === 'cancelled') {
-    return 'bg-red-100 text-red-700 border-red-200'
-  }
-  return 'bg-gray-100 text-gray-700 border-gray-200'
+  if (status === 'upcoming') return 'bg-amber-100 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-500/30'
+  if (status === 'ongoing') return 'bg-[#059669]/15 dark:bg-[#059669]/20 text-[#059669] dark:text-emerald-300 border-[#059669]/30'
+  if (status === 'cancelled') return 'bg-rose-100 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-500/30'
+  return 'bg-[#E2E8F0] dark:bg-[#1E293B] text-slate-700 dark:text-[#94A3B8] border-[#CBD5E1] dark:border-[#334155]'
 }
 
 function statusLabel(status: CampaignAdminRow['status']) {
   if (status === 'upcoming') return 'Akan Datang'
-  if (status === 'ongoing') return 'Berlangsung'
+  if (status === 'ongoing') return 'Sedang Berlangsung'
   if (status === 'cancelled') return 'Dibatalkan'
   return 'Selesai'
 }
 
 export const metadata = {
-  title: 'Kelola Campaign - Admin',
+  title: 'Kelola Campaign - Admin WasteCare',
 }
 
 interface PageProps {
@@ -81,8 +74,7 @@ export default async function AdminCampaignManagementPage({ searchParams }: Page
   const resolvedSearchParams = await searchParams
   const filterStatus = typeof resolvedSearchParams.status === 'string' ? resolvedSearchParams.status : 'all'
 
-  // Always fetch all campaigns – filter by computed status in JS
-  // (DB `status` column is never updated, so we compute status from start/end times)
+  // Fetch campaigns
   const { data, error } = await supabase
     .from('campaigns')
     .select(`
@@ -99,8 +91,8 @@ export default async function AdminCampaignManagementPage({ searchParams }: Page
 
   if (error) {
     return (
-      <div className="max-w-6xl mx-auto">
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-4">
+      <div className="max-w-7xl mx-auto">
+        <div className="bg-rose-500/10 border border-rose-500/30 text-rose-300 rounded-2xl p-4 text-xs">
           Gagal memuat data campaign: {error.message}
         </div>
       </div>
@@ -136,40 +128,45 @@ export default async function AdminCampaignManagementPage({ searchParams }: Page
   )
 
   const FILTERS = [
-    { value: 'all', label: 'Semua' },
+    { value: 'all', label: 'Semua Campaign' },
     { value: 'upcoming', label: 'Akan Datang' },
     { value: 'ongoing', label: 'Berlangsung' },
     { value: 'finished', label: 'Selesai' },
   ]
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 animate-in fade-in duration-300">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-300">
+      
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-sm font-medium text-green-600 mb-1">Manajemen Program</h2>
-          <h1 className="text-3xl font-bold text-gray-900">Kelola Campaign</h1>
-          <p className="text-gray-500 mt-1">Pantau campaign dan lihat peserta yang sudah mendaftar.</p>
+          <div className="flex items-center gap-2 text-xs text-[#059669] dark:text-emerald-400 font-semibold uppercase tracking-wider mb-1">
+            <Sparkles size={13} />
+            <span>Manajemen Program</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Kelola Campaign Kebersihan</h1>
+          <p className="text-[#94A3B8] text-sm mt-1">Pantau program aksi bersih lingkungan dan verifikasi presensi relawan.</p>
         </div>
 
         <Link
           href="/admin/campaign/buat"
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-green-700 text-white font-medium hover:bg-green-800 transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#059669] hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-lg shadow-[#059669]/20 transition-all hover:scale-[1.02] active:scale-[0.98] self-start sm:self-auto"
         >
-          <Plus size={18} />
-          Buat Campaign
+          <Plus size={16} />
+          <span>Buat Campaign Baru</span>
         </Link>
       </div>
 
-      {/* Filters */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      {/* Filters Bar */}
+      <div className="bg-white dark:bg-[#111827] p-1.5 rounded-2xl flex items-center gap-1.5 overflow-x-auto border border-[#E2E8F0] dark:border-[#1E293B] shadow-sm dark:shadow-lg dark:shadow-black/10">
         {FILTERS.map((f) => (
           <Link
             key={f.value}
             href={f.value === 'all' ? '/admin/campaign' : `/admin/campaign?status=${f.value}`}
-            className={`px-4 py-2 rounded-xl font-medium text-sm whitespace-nowrap transition-colors ${
+            className={`px-4 py-2 rounded-xl font-medium text-xs sm:text-sm whitespace-nowrap transition-all duration-200 ${
               filterStatus === f.value
-                ? 'bg-green-600 text-white'
-                : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                ? 'bg-[#059669] text-white font-bold shadow-md shadow-[#059669]/20'
+                : 'text-slate-600 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-slate-200 hover:bg-[#F1F5F9] dark:hover:bg-[#1E293B]/70'
             }`}
           >
             {f.label}
@@ -177,14 +174,22 @@ export default async function AdminCampaignManagementPage({ searchParams }: Page
         ))}
       </div>
 
+      {/* Campaign Cards List */}
       {campaigns.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-10 text-center text-gray-500">
-          Belum ada campaign yang ditemukan.
+        <div className="bg-white dark:bg-[#111827] rounded-3xl border border-[#E2E8F0] dark:border-[#1E293B] p-12 text-center space-y-3 shadow-sm">
+          <div className="w-14 h-14 rounded-2xl bg-[#F1F5F9] dark:bg-[#1E293B] flex items-center justify-center mx-auto text-[#94A3B8]">
+            <Inbox size={28} />
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-slate-900 dark:text-slate-200">Belum Ada Campaign</h3>
+            <p className="text-xs text-[#94A3B8] mt-1 max-w-sm mx-auto">
+              Tidak ada data campaign yang cocok dengan filter yang dipilih.
+            </p>
+          </div>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-5">
           {campaigns.map((campaign) => {
-            // Recalculate status based on current time instead of relying on stale DB value
             const computedStatus = determineCampaignStatus(campaign.start_time, campaign.end_time, campaign.status);
             const rawParticipants = campaign.campaign_participants || []
             const participantCount = rawParticipants.length
@@ -204,58 +209,83 @@ export default async function AdminCampaignManagementPage({ searchParams }: Page
             })
 
             return (
-              <div key={campaign.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div className="p-5 border-b border-gray-100">
+              <div 
+                key={campaign.id} 
+                className="bg-white dark:bg-[#111827] rounded-3xl border border-[#E2E8F0] dark:border-[#1E293B] shadow-sm dark:shadow-xl dark:shadow-black/10 overflow-hidden"
+              >
+                {/* Header card */}
+                <div className="p-5 sm:p-6 border-b border-[#E2E8F0] dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#0B0F17]/50">
                   <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="text-lg font-bold text-gray-900">{campaign.title}</h3>
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${statusBadge(computedStatus)}`}>
+                      <div className="flex items-center gap-2.5 flex-wrap">
+                        <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight">{campaign.title}</h3>
+                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${statusBadge(computedStatus)}`}>
                           {statusLabel(computedStatus)}
                         </span>
                       </div>
 
-                      <div className="text-sm text-gray-600 flex flex-wrap items-center gap-4">
+                      <div className="text-xs text-[#94A3B8] flex flex-wrap items-center gap-4 pt-1">
                         <span className="inline-flex items-center gap-1.5">
-                          <CalendarDays size={14} />
-                          {formatDateTime(campaign.start_time)}
+                          <CalendarDays size={14} className="text-[#059669] dark:text-emerald-400" />
+                          <span>{formatDateTime(campaign.start_time)}</span>
                         </span>
+                        <span>•</span>
                         <span className="inline-flex items-center gap-1.5">
-                          <Clock3 size={14} />
-                          {formatDateTime(campaign.end_time)}
+                          <Clock3 size={14} className="text-[#94A3B8]" />
+                          <span>Sampai {formatDateTime(campaign.end_time)}</span>
                         </span>
-                        <span className="inline-flex items-center gap-1.5">
-                          <Users size={14} />
-                          {participantCount}/{campaign.max_participants} peserta
+                        <span>•</span>
+                        <span className="inline-flex items-center gap-1.5 font-semibold text-slate-700 dark:text-slate-300">
+                          <Users size={14} className="text-[#059669] dark:text-emerald-400" />
+                          <span>{participantCount} / {campaign.max_participants} Peserta</span>
                         </span>
                       </div>
 
-                      <p className="text-sm text-gray-500">Penyelenggara: {campaign.organizer_name}</p>
+                      <p className="text-xs text-[#94A3B8]">Penyelenggara: <strong className="text-slate-800 dark:text-slate-200">{campaign.organizer_name}</strong></p>
                     </div>
 
                     <Link
                       href={`/campaign?campaignId=${campaign.id}`}
-                      className="inline-flex items-center gap-1 text-sm font-medium text-green-700 hover:text-green-800"
+                      target="_blank"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F1F5F9] hover:bg-[#E2E8F0] dark:bg-[#1E293B] dark:hover:bg-[#334155] text-xs font-semibold text-[#059669] dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 border border-[#CBD5E1] dark:border-[#334155] transition-colors self-start md:self-auto"
                     >
-                      Lihat di halaman user
-                      <ChevronRight size={16} />
+                      <span>Lihat Halaman Publik</span>
+                      <ExternalLink size={13} />
                     </Link>
                   </div>
 
-                  <div className="mt-4">
-                    <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
-                      <div className="h-full bg-green-500" style={{ width: `${percentage}%` }} />
+                  {/* Quota bar */}
+                  <div className="mt-4 space-y-1.5">
+                    <div className="flex items-center justify-between text-[11px] text-[#94A3B8]">
+                      <span>Kapasitas Relawan</span>
+                      <span className="font-semibold text-slate-700 dark:text-slate-300">{Math.round(percentage)}% Terisi</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-[#E2E8F0] dark:bg-[#1E293B] overflow-hidden border border-[#CBD5E1] dark:border-[#334155]">
+                      <div 
+                        className="h-full bg-gradient-to-r from-[#059669] to-teal-500 transition-all duration-500" 
+                        style={{ width: `${percentage}%` }} 
+                      />
                     </div>
                   </div>
                 </div>
 
-                <div className="p-5">
-                  <h4 className="text-sm font-semibold text-gray-800 mb-3">Peserta Terdaftar</h4>
+                {/* Participants table section */}
+                <div className="p-5 sm:p-6 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Daftar Presensi Relawan</h4>
+                    <span className="text-xs text-[#94A3B8] font-mono">{mappedParticipants.length} Terdaftar</span>
+                  </div>
 
                   {mappedParticipants.length === 0 ? (
-                    <p className="text-sm text-gray-500">Belum ada peserta yang mendaftar.</p>
+                    <div className="py-6 text-center text-xs text-[#94A3B8] bg-[#F8FAFC] dark:bg-[#0B0F17]/30 rounded-2xl border border-[#E2E8F0] dark:border-[#1E293B]">
+                      Belum ada relawan yang mendaftar ke campaign ini.
+                    </div>
                   ) : (
-                    <ParticipantTable campaignId={campaign.id} participants={mappedParticipants} isFinished={computedStatus === 'finished'} />
+                    <ParticipantTable 
+                      campaignId={campaign.id} 
+                      participants={mappedParticipants} 
+                      isFinished={computedStatus === 'finished'} 
+                    />
                   )}
                 </div>
               </div>

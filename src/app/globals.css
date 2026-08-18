@@ -1,6 +1,8 @@
 /* @import must be at the top */
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Critical CSS only - minimal styles for first paint */
 
 :root {
