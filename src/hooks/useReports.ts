@@ -53,11 +53,28 @@ export function useReports() {
       }
 
       // Transform Supabase data to WasteMarker format
-      // IMPORTANT: hazardous and rejected reports must NOT be shown on citizen/user maps (admin only)
+      // IMPORTANT: hazardous, rejected, and pending reports must NOT be shown on citizen/user maps (only approved!)
       const rawReports = (data as (ReportWithCoordinates & { status?: string })[] || []);
-      const validReports = rawReports.filter(
-        (report) => report.status !== 'hazardous' && report.status !== 'rejected'
-      );
+      
+      let statusMap = new Map<number, string>();
+      if (rawReports.length > 0 && !rawReports[0].status) {
+        const reportIds = rawReports.map((r) => r.id);
+        const { data: statusRows } = await supabase
+          .from('reports')
+          .select('id, status')
+          .in('id', reportIds);
+
+        if (statusRows) {
+          statusRows.forEach((row: { id: number; status: string }) => {
+            statusMap.set(row.id, row.status);
+          });
+        }
+      }
+
+      const validReports = rawReports.filter((report) => {
+        const status = report.status || statusMap.get(report.id);
+        return status === 'approved';
+      });
 
       const markers: WasteMarker[] = validReports.map((report) => ({
         id: report.id.toString(),

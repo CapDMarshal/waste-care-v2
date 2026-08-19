@@ -68,11 +68,41 @@ export async function getNearbyReports(
       throw new Error(error.message);
     }
 
-    // Exclude hazardous and rejected reports from user maps (hazardous is admin only)
     const rawReports: (ReportLocation & { status?: string })[] = data ?? [];
-    const reports: ReportLocation[] = rawReports.filter(
-      (report) => report.status !== 'hazardous' && report.status !== 'rejected'
-    );
+    if (rawReports.length === 0) {
+      return {
+        success: true,
+        data: {
+          reports: [],
+          query: {
+            latitude: latitude.toString(),
+            longitude: longitude.toString(),
+            radius_km: radiusKm,
+          },
+          total_count: 0,
+        },
+      };
+    }
+
+    // Lookup status from reports table to guarantee hazardous/rejected/pending are never shown on citizen map
+    const reportIds = rawReports.map((r) => r.id);
+    const { data: statusRows } = await supabase
+      .from('reports')
+      .select('id, status')
+      .in('id', reportIds);
+
+    const statusMap = new Map<number, string>();
+    if (statusRows) {
+      statusRows.forEach((row: { id: number; status: string }) => {
+        statusMap.set(row.id, row.status);
+      });
+    }
+
+    // Only 'approved' reports are allowed on the user/citizen map!
+    const reports: ReportLocation[] = rawReports.filter((report) => {
+      const status = report.status || statusMap.get(report.id);
+      return status === 'approved';
+    });
 
     return {
       success: true,
