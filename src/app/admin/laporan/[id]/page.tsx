@@ -216,7 +216,7 @@ export default async function AdminReportDetailPage({
             </div>
           )}
 
-          {/* Approved state (show campaign action) */}
+          {/* Approved state (show campaign action & direct finish) */}
           {report.status === 'approved' && (
             <div className="pt-5 border-t border-[#E2E8F0] dark:border-[#1E293B] space-y-3">
               <div className="bg-[#059669]/10 border border-[#059669]/30 text-[#059669] dark:text-emerald-300 p-4 rounded-2xl text-xs space-y-1 flex items-start gap-3">
@@ -225,40 +225,34 @@ export default async function AdminReportDetailPage({
                   <p className="font-bold text-slate-900 dark:text-white text-sm">Laporan Telah Disetujui</p>
                   <p className="text-slate-600 dark:text-slate-300 mt-0.5">
                     {report.campaigns && report.campaigns.length > 0
-                      ? 'Laporan ini sudah memiliki campaign kebersihan aktif.'
-                      : 'Langkah berikutnya: Buat campaign kebersihan untuk mengajak partisipasi warga.'}
+                      ? 'Laporan ini sudah memiliki campaign kebersihan aktif. Anda dapat membuat campaign tambahan atau menandai laporan selesai dibersihkan.'
+                      : 'Langkah berikutnya: Buat campaign kebersihan untuk mengajak partisipasi warga, atau langsung selesaikan dan bersihkan tumpukan sampah.'}
                   </p>
                 </div>
               </div>
               
-              {report.campaigns && report.campaigns.length > 0 ? (
-                <div className="flex flex-col gap-2.5">
-                  <Link 
-                    href={`/admin/campaign/buat?reportId=${report.id}`}
-                    className="w-full flex justify-center items-center gap-2 bg-[#F1F5F9] hover:bg-[#E2E8F0] dark:bg-[#1E293B] dark:hover:bg-[#334155] text-slate-800 dark:text-white font-semibold py-3 px-4 rounded-2xl border border-[#CBD5E1] dark:border-[#334155] transition-colors text-xs sm:text-sm"
-                  >
-                    <Flag size={16} className="text-[#059669] dark:text-emerald-400" />
-                    <span>Buat Campaign Tambahan</span>
-                  </Link>
-                  <form action={async () => { 'use server'; await finishAction(report.id) }}>
-                    <button 
-                      type="submit" 
-                      className="w-full flex justify-center items-center gap-2 bg-[#059669] hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-2xl shadow-lg shadow-[#059669]/20 transition-all text-xs sm:text-sm cursor-pointer"
-                    >
-                      <Check size={18} />
-                      <span>Selesaikan & Bersihkan</span>
-                    </button>
-                  </form>
-                </div>
-              ) : (
+              <div className="flex flex-col gap-2.5">
                 <Link 
                   href={`/admin/campaign/buat?reportId=${report.id}`}
-                  className="w-full flex justify-center items-center gap-2 bg-[#059669] hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-2xl shadow-lg shadow-[#059669]/20 transition-all text-xs sm:text-sm"
+                  className="w-full flex justify-center items-center gap-2 bg-[#F1F5F9] hover:bg-[#E2E8F0] dark:bg-[#1E293B] dark:hover:bg-[#334155] text-slate-800 dark:text-white font-semibold py-3 px-4 rounded-2xl border border-[#CBD5E1] dark:border-[#334155] transition-colors text-xs sm:text-sm"
                 >
-                  <Flag size={18} />
-                  <span>Buat Campaign Kebersihan</span>
+                  <Flag size={16} className="text-[#059669] dark:text-emerald-400" />
+                  <span>
+                    {report.campaigns && report.campaigns.length > 0
+                      ? 'Buat Campaign Tambahan'
+                      : 'Buat Campaign Kebersihan'}
+                  </span>
                 </Link>
-              )}
+                <form action={async () => { 'use server'; await finishAction(report.id) }}>
+                  <button 
+                    type="submit" 
+                    className="w-full flex justify-center items-center gap-2 bg-[#059669] hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-2xl shadow-lg shadow-[#059669]/20 transition-all text-xs sm:text-sm cursor-pointer"
+                  >
+                    <Check size={18} />
+                    <span>Selesaikan & Bersihkan</span>
+                  </button>
+                </form>
+              </div>
             </div>
           )}
 
