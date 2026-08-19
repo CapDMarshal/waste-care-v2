@@ -68,7 +68,11 @@ export async function getNearbyReports(
       throw new Error(error.message);
     }
 
-    const reports: ReportLocation[] = data ?? [];
+    // Exclude hazardous and rejected reports from user maps (hazardous is admin only)
+    const rawReports: (ReportLocation & { status?: string })[] = data ?? [];
+    const reports: ReportLocation[] = rawReports.filter(
+      (report) => report.status !== 'hazardous' && report.status !== 'rejected'
+    );
 
     return {
       success: true,

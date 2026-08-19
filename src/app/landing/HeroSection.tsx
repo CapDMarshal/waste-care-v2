@@ -11,8 +11,10 @@ import {
 export default function HeroSection() {
   const [overallStats, setOverallStats] = useState<OverallStatistics>({
     totalCampaignsCompleted: 0,
+    totalCampaigns: 0,
     totalParticipants: 0,
     totalCleanedAreas: 0,
+    totalActiveReports: 0,
   });
   const [wasteStats, setWasteStats] = useState<WasteTypeStatistics>({
     total: 0,
@@ -111,7 +113,7 @@ export default function HeroSection() {
                   </div>
                 ) : (
                   <div className="text-3xl font-bold mb-1">
-                    {wasteStats.total.toLocaleString('id-ID')}
+                    {(overallStats.totalActiveReports > 0 ? overallStats.totalActiveReports : wasteStats.total).toLocaleString('id-ID')}
                   </div>
                 )}
                 <div className="text-emerald-200 text-sm font-medium">Laporan Aktif</div>
@@ -123,7 +125,7 @@ export default function HeroSection() {
                   </div>
                 ) : (
                   <div className="text-3xl font-bold mb-1">
-                    {overallStats.totalCampaignsCompleted.toLocaleString('id-ID')}
+                    {(overallStats.totalCampaigns || overallStats.totalCampaignsCompleted).toLocaleString('id-ID')}
                   </div>
                 )}
                 <div className="text-emerald-200 text-sm font-medium">Jumlah Campaign</div>

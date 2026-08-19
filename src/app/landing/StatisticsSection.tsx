@@ -22,8 +22,10 @@ function StatisticsSection() {
   const [topCities, setTopCities] = useState<CityStatistic[]>([]);
   const [overallStats, setOverallStats] = useState<OverallStatistics>({
     totalCampaignsCompleted: 0,
+    totalCampaigns: 0,
     totalParticipants: 0,
     totalCleanedAreas: 0,
+    totalActiveReports: 0,
   });
   const [wasteStats, setWasteStats] = useState<WasteTypeStatistics>({
     total: 0,
@@ -191,7 +193,7 @@ function StatisticsSection() {
                       wasteStats.hazardous.toLocaleString('id-ID')
                     )}
                   </div>
-                  <div className="text-sm text-gray-600">Berbahaya</div>
+                  <div className="text-sm text-gray-600">Berbahaya (B3)</div>
                 </div>
               </div>
 

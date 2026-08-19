@@ -12,8 +12,10 @@ export interface CityStatistic {
 
 export interface OverallStatistics {
   totalCampaignsCompleted: number;
+  totalCampaigns: number;
   totalParticipants: number;
   totalCleanedAreas: number;
+  totalActiveReports: number;
 }
 
 export interface WasteTypeStatistics {
@@ -70,9 +72,59 @@ export function calculateCleanlinessScore(
 
 /**
  * Fetch waste type statistics from the database
+ * Calculates exact counts where:
+ * - organic: waste_type = 'organik'
+ * - inorganic: waste_type = 'anorganik'
+ * - mixed: waste_type = 'campuran'
+ * - hazardous: status = 'hazardous' (as per system SOP)
  */
 export async function fetchWasteTypeStatistics(): Promise<WasteTypeStatistics> {
   try {
+    // Attempt 1: Fetch reports directly to get live, synchronized counts
+    const { data: reports, error: repError } = await supabase
+      .from('reports')
+      .select('id, status, waste_type, hazard_risk');
+
+    if (!repError && Array.isArray(reports) && reports.length > 0) {
+      let organic = 0;
+      let inorganic = 0;
+      let mixed = 0;
+      let hazardous = 0;
+      let riskNone = 0;
+      let riskLow = 0;
+      let riskMedium = 0;
+      let riskHigh = 0;
+
+      for (const r of reports) {
+        if (r.waste_type === 'organik') organic++;
+        else if (r.waste_type === 'anorganik') inorganic++;
+        else if (r.waste_type === 'campuran') mixed++;
+
+        // Status "hazardous" strictly determines the hazardous report count
+        if (r.status === 'hazardous') {
+          hazardous++;
+        }
+
+        if (r.hazard_risk === 'tidak_ada') riskNone++;
+        else if (r.hazard_risk === 'rendah') riskLow++;
+        else if (r.hazard_risk === 'menengah') riskMedium++;
+        else if (r.hazard_risk === 'tinggi') riskHigh++;
+      }
+
+      return {
+        total: reports.length,
+        organic,
+        inorganic,
+        mixed,
+        hazardous,
+        riskNone,
+        riskLow,
+        riskMedium,
+        riskHigh,
+      };
+    }
+
+    // Fallback: RPC
     const { data, error } = await supabase
       .rpc('get_waste_type_statistics')
       .single() as any;
@@ -86,7 +138,7 @@ export async function fetchWasteTypeStatistics(): Promise<WasteTypeStatistics> {
       organic: Number(data?.organic || 0),
       inorganic: Number(data?.inorganic || 0),
       mixed: Number(data?.mixed || 0),
-      hazardous: Number(data?.risk_low || 0) + Number(data?.risk_medium || 0) + Number(data?.risk_high || 0),
+      hazardous: Number(data?.risk_high || 0),
       riskNone: Number(data?.risk_none || 0),
       riskLow: Number(data?.risk_low || 0),
       riskMedium: Number(data?.risk_medium || 0),
@@ -112,6 +164,40 @@ export async function fetchWasteTypeStatistics(): Promise<WasteTypeStatistics> {
  */
 export async function fetchOverallStatistics(): Promise<OverallStatistics> {
   try {
+    const [campaignsRes, participantsRes, profilesRes, reportsRes] = await Promise.all([
+      supabase.from('campaigns').select('id, status'),
+      supabase.from('campaign_participants').select('profile_id'),
+      supabase.from('profiles').select('id'),
+      supabase.from('reports').select('id, status'),
+    ]);
+
+    const campaigns = campaignsRes.data || [];
+    const participants = participantsRes.data || [];
+    const profiles = profilesRes.data || [];
+    const reports = reportsRes.data || [];
+
+    const totalCampaigns = campaigns.length;
+    const totalCampaignsCompleted = campaigns.filter((c: any) => c.status === 'finished').length;
+    
+    // Unique participants or total profiles registered
+    const uniqueParticipants = new Set(participants.map((p: any) => p.profile_id)).size;
+    const totalUsers = Math.max(profiles.length, uniqueParticipants);
+
+    // Active reports: pending, approved, hazardous (not yet finished or rejected)
+    const totalActiveReports = reports.filter((r: any) => r.status === 'pending' || r.status === 'approved' || r.status === 'hazardous').length;
+    const totalCleanedAreas = reports.filter((r: any) => r.status === 'finished').length;
+
+    if (totalCampaigns > 0 || totalUsers > 0 || reports.length > 0) {
+      return {
+        totalCampaigns,
+        totalCampaignsCompleted,
+        totalParticipants: totalUsers,
+        totalCleanedAreas,
+        totalActiveReports: totalActiveReports > 0 ? totalActiveReports : reports.length,
+      };
+    }
+
+    // Fallback: RPC
     const { data, error } = await supabase
       .rpc('get_overall_statistics')
       .single() as any;
@@ -121,18 +207,23 @@ export async function fetchOverallStatistics(): Promise<OverallStatistics> {
     }
 
     return {
+      totalCampaigns: data?.total_campaigns_completed || 0,
       totalCampaignsCompleted: data?.total_campaigns_completed || 0,
       totalParticipants: data?.total_participants || 0,
       totalCleanedAreas: data?.total_cleaned_areas || 0,
+      totalActiveReports: 0,
     };
   } catch (error) {
     return {
+      totalCampaigns: 0,
       totalCampaignsCompleted: 0,
       totalParticipants: 0,
       totalCleanedAreas: 0,
+      totalActiveReports: 0,
     };
   }
 }
+
 
 /**
  * Fetch top cities by campaign completion and waste management performance

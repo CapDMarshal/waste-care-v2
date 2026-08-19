@@ -50,13 +50,19 @@ export async function getReportsForMap(limit: number = 100): Promise<MapReport[]
     const { data, error } = await supabase
       .rpc('get_reports_with_coordinates')
       .eq('status', 'approved')
+      .neq('status', 'hazardous')
       .limit(limit);
 
     if (error) {
       throw error;
     }
 
-    return (data || []) as MapReport[];
+    const raw = (data || []) as (MapReport & { status?: string })[];
+    const filtered = raw.filter(
+      (r) => r.status !== 'hazardous' && r.status !== 'rejected'
+    );
+
+    return filtered as MapReport[];
   } catch (error) {
     throw error;
   }

@@ -53,7 +53,13 @@ export function useReports() {
       }
 
       // Transform Supabase data to WasteMarker format
-      const markers: WasteMarker[] = (data as ReportWithCoordinates[] || []).map((report: ReportWithCoordinates) => ({
+      // IMPORTANT: hazardous and rejected reports must NOT be shown on citizen/user maps (admin only)
+      const rawReports = (data as (ReportWithCoordinates & { status?: string })[] || []);
+      const validReports = rawReports.filter(
+        (report) => report.status !== 'hazardous' && report.status !== 'rejected'
+      );
+
+      const markers: WasteMarker[] = validReports.map((report) => ({
         id: report.id.toString(),
         coordinates: [report.longitude, report.latitude] as [number, number],
         type: 'waste' as const,

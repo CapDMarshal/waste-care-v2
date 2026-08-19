@@ -149,7 +149,7 @@ export default function MapsSection() {
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
             <div className="text-center">
               <div className="text-3xl font-bold text-red-600 mb-1">{stats.hazardous}</div>
-              <div className="text-sm text-gray-600">Berbahaya</div>
+              <div className="text-sm text-gray-600">Berbahaya (B3)</div>
             </div>
           </div>
 
