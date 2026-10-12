@@ -202,28 +202,53 @@ export async function updateReportStatus(
     throw new Error(error.message)
   }
 
-  // Insert notification
-  let title = 'Status Laporan Diperbarui'
-  let message = `Laporan Anda telah diperbarui menjadi ${status}.`
-  
+  // Handle XP award & Notifications
   if (status === 'approved') {
-    title = 'Laporan Disetujui'
-    message = 'Laporan Anda telah disetujui oleh admin dan akan segera ditindaklanjuti.'
-  } else if (status === 'rejected') {
-    title = 'Laporan Ditolak'
-    message = `Laporan Anda ditolak. Alasan: ${adminNotes || 'Tidak ada catatan khusus.'}`
-  } else if (status === 'hazardous') {
-    title = 'Laporan Diteruskan'
-    message = 'Laporan Anda dikategorikan berbahaya dan telah diteruskan ke pihak berwenang.'
-  }
+    let xpAwardedSuccessfully = false
+    try {
+      const { data: awardData, error: awardError } = await supabase.rpc('award_report_approved_exp', {
+        p_report_id: reportId,
+        p_admin_id: user.id
+      })
+      if (!awardError && awardData) {
+        xpAwardedSuccessfully = true
+      } else if (awardError) {
+        console.warn('RPC award_report_approved_exp error:', getErrorInfo(awardError))
+      }
+    } catch (err) {
+      console.warn('RPC award_report_approved_exp failed to execute:', err)
+    }
 
-  await supabase.from('notifications').insert({
-    user_id: report.user_id,
-    title,
-    message,
-    type: 'report_status',
-    related_id: reportId
-  })
+    // Fallback notification jika RPC belum terpasang atau tidak membuat notifikasi
+    if (!xpAwardedSuccessfully) {
+      await supabase.from('notifications').insert({
+        user_id: report.user_id,
+        title: 'Laporan Disetujui',
+        message: 'Laporan Anda telah disetujui oleh admin dan akan segera ditindaklanjuti.',
+        type: 'report_status',
+        related_id: reportId
+      })
+    }
+  } else {
+    let title = 'Status Laporan Diperbarui'
+    let message = `Laporan Anda telah diperbarui menjadi ${status}.`
+    
+    if (status === 'rejected') {
+      title = 'Laporan Ditolak'
+      message = `Laporan Anda ditolak. Alasan: ${adminNotes || 'Tidak ada catatan khusus.'}`
+    } else if (status === 'hazardous') {
+      title = 'Laporan Diteruskan'
+      message = 'Laporan Anda dikategorikan berbahaya dan telah diteruskan ke pihak berwenang.'
+    }
+
+    await supabase.from('notifications').insert({
+      user_id: report.user_id,
+      title,
+      message,
+      type: 'report_status',
+      related_id: reportId
+    })
+  }
 
   return true
 }

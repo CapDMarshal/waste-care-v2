@@ -146,6 +146,7 @@ export interface Database {
           reviewed_by: string | null
           reviewed_at: string | null
           admin_notes: string | null
+          exp_awarded?: boolean | null
         }
         Insert: {
           id?: number
@@ -162,6 +163,7 @@ export interface Database {
           reviewed_by?: string | null
           reviewed_at?: string | null
           admin_notes?: string | null
+          exp_awarded?: boolean | null
         }
         Update: {
           id?: number
@@ -178,6 +180,7 @@ export interface Database {
           reviewed_by?: string | null
           reviewed_at?: string | null
           admin_notes?: string | null
+          exp_awarded?: boolean | null
         }
       }
       notifications: {
@@ -336,6 +339,34 @@ export interface Database {
           p_user_lat: number
           p_user_lng: number
           p_max_distance_meters?: number
+        }
+        Returns: Json
+      }
+      award_report_approved_exp: {
+        Args: {
+          p_report_id: number
+          p_admin_id?: string | null
+        }
+        Returns: Json
+      }
+      get_citizen_leaderboard: {
+        Args: {
+          p_limit?: number
+        }
+        Returns: {
+          rank: number
+          user_id: string
+          full_name: string
+          email: string
+          exp: number
+          role: string
+          reports_count: number
+          campaigns_attended_count: number
+        }[]
+      }
+      get_user_leaderboard_rank: {
+        Args: {
+          p_user_id: string
         }
         Returns: Json
       }
