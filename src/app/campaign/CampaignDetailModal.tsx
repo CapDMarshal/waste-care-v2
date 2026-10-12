@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
+import { QrCode, CheckCircle2 } from 'lucide-react';
 import type { Campaign } from '@/types/campaign.types';
 import { formatWasteType } from '@/lib/nearbyReportsService';
 
@@ -169,6 +171,33 @@ export function CampaignDetailModal({ campaign, isOpen, onClose, onJoin }: Campa
               </svg>
               Sudah Bergabung
             </button>
+          )}
+
+          {/* Ongoing attendance CTA or attended badge */}
+          {campaign.isJoined && campaign.status === 'ongoing' && (
+            campaign.isAttended ? (
+              <span className="flex-1 px-6 py-3 bg-emerald-100 text-emerald-800 rounded-xl font-bold text-sm flex items-center justify-center gap-2 border border-emerald-300">
+                <CheckCircle2 size={18} className="text-emerald-600" />
+                <span>Hadir (+100 EXP)</span>
+              </span>
+            ) : (
+              <Link
+                href={`/scan-qr?campaign_id=${campaign.id}`}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25 transition-all text-center"
+              >
+                <QrCode size={18} />
+                <span>Presensi Kehadiran Sekarang</span>
+              </Link>
+            )
+          )}
+
+          {/* Finished attendance status */}
+          {campaign.isJoined && campaign.status === 'finished' && (
+            <span className={`flex-1 px-6 py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 ${
+              campaign.isAttended ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-gray-100 text-gray-500'
+            }`}>
+              {campaign.isAttended ? 'Tercatat Hadir' : 'Tidak Hadir'}
+            </span>
           )}
 
           {isFull && campaign.status === 'upcoming' && !campaign.isJoined && (

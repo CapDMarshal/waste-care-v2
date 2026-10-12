@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
+import { QrCode, CheckCircle2 } from 'lucide-react';
 import type { Campaign } from '@/types/campaign.types';
 import { formatWasteType } from '@/lib/nearbyReportsService';
 
@@ -151,6 +153,33 @@ export function CampaignCard({ campaign, onJoin, onViewDetails, isJoining = fals
               </svg>
               Sudah Bergabung
             </button>
+          )}
+
+          {/* Ongoing attendance check-in button or attended badge */}
+          {campaign.isJoined && campaign.status === 'ongoing' && (
+            campaign.isAttended ? (
+              <span className="flex-1 px-3 py-2.5 bg-emerald-100 text-emerald-800 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border border-emerald-300">
+                <CheckCircle2 size={15} className="text-emerald-600" />
+                <span>Hadir (+100 EXP)</span>
+              </span>
+            ) : (
+              <Link
+                href={`/scan-qr?campaign_id=${campaign.id}`}
+                className="flex-1 px-3 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <QrCode size={15} />
+                <span>Presensi Kehadiran</span>
+              </Link>
+            )
+          )}
+
+          {/* Finished attendance status */}
+          {campaign.isJoined && campaign.status === 'finished' && (
+            <span className={`flex-1 px-3 py-2.5 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 ${
+              campaign.isAttended ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-gray-100 text-gray-500'
+            }`}>
+              {campaign.isAttended ? 'Tercatat Hadir' : 'Tidak Hadir'}
+            </span>
           )}
 
           {isFull && campaign.status === 'upcoming' && !campaign.isJoined && (

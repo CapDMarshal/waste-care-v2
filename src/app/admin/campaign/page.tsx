@@ -1,13 +1,16 @@
 import Link from 'next/link'
 import { requireAdmin } from '@/lib/adminGuard'
 import { createAdminClient } from '@/utils/supabase/server'
-import { Users, CalendarDays, Clock3, Plus, ChevronRight, Sparkles, Inbox, ExternalLink } from 'lucide-react'
+import { Users, CalendarDays, Clock3, Plus, ChevronRight, Sparkles, Inbox } from 'lucide-react'
 import { ParticipantTable, ParticipantUI } from './ParticipantTable'
+import { CampaignAdminActions } from './CampaignAdminActions'
 
 type CampaignParticipantRow = {
   profile_id: string
   joined_at: string
   is_attended: boolean | null
+  attended_at?: string | null
+  check_in_distance?: number | null
 }
 
 type CampaignAdminRow = {
@@ -85,7 +88,7 @@ export default async function AdminCampaignManagementPage({ searchParams }: Page
       max_participants,
       status,
       organizer_name,
-      campaign_participants(profile_id, joined_at, is_attended)
+      campaign_participants(profile_id, joined_at, is_attended, attended_at, check_in_distance)
     `)
     .order('start_time', { ascending: false })
 
@@ -203,6 +206,8 @@ export default async function AdminCampaignManagementPage({ searchParams }: Page
                 profile_id: p.profile_id,
                 joined_at: p.joined_at,
                 is_attended: p.is_attended,
+                attended_at: p.attended_at,
+                check_in_distance: p.check_in_distance,
                 fullName: info?.fullName || 'Tanpa Nama',
                 email: info?.email || '-',
               }
@@ -244,14 +249,11 @@ export default async function AdminCampaignManagementPage({ searchParams }: Page
                       <p className="text-xs text-[#94A3B8]">Penyelenggara: <strong className="text-slate-800 dark:text-slate-200">{campaign.organizer_name}</strong></p>
                     </div>
 
-                    <Link
-                      href={`/campaign?campaignId=${campaign.id}`}
-                      target="_blank"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F1F5F9] hover:bg-[#E2E8F0] dark:bg-[#1E293B] dark:hover:bg-[#334155] text-xs font-semibold text-[#059669] dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 border border-[#CBD5E1] dark:border-[#334155] transition-colors self-start md:self-auto"
-                    >
-                      <span>Lihat Halaman Publik</span>
-                      <ExternalLink size={13} />
-                    </Link>
+                    <CampaignAdminActions
+                      campaignId={campaign.id}
+                      campaignTitle={campaign.title}
+                      status={computedStatus}
+                    />
                   </div>
 
                   {/* Quota bar */}

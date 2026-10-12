@@ -90,7 +90,7 @@ export async function checkReportHasCampaign(reportId: number): Promise<boolean>
         .from('campaigns')
         .select(`
           *,
-          campaign_participants(profile_id)
+          campaign_participants(profile_id, is_attended)
         `)
         .order('start_time', { ascending: false });
 
@@ -110,16 +110,18 @@ export async function checkReportHasCampaign(reportId: number): Promise<boolean>
 
       return campaigns.map((campaign: any) => {
         const participantCount = campaign.campaign_participants?.length || 0;
-        const isJoined = userId
-          ? campaign.campaign_participants?.some((p: { profile_id: string }) => p.profile_id === userId)
-          : false;
+        const userParticipant = userId
+          ? campaign.campaign_participants?.find((p: { profile_id: string; is_attended?: boolean | null }) => p.profile_id === userId)
+          : null;
+        const isJoined = !!userParticipant;
+        const isAttended = userParticipant?.is_attended === true;
 
         const campaignWithReport: CampaignQueryResult = {
           ...(campaign as CampaignRow),
           reports: reportsMap.get(campaign.report_id) || null,
         };
 
-        return transformCampaignRow(campaignWithReport, participantCount, isJoined);
+        return transformCampaignRow(campaignWithReport, participantCount, isJoined, isAttended);
       });
     } catch {
       throw new Error('Gagal memuat data campaign');
@@ -198,7 +200,8 @@ export async function checkReportHasCampaign(reportId: number): Promise<boolean>
   function transformCampaignRow(
     row: CampaignQueryResult,
     participantCount = 0,
-    isJoined = false
+    isJoined = false,
+    isAttended = false
   ): Campaign {
     const startTime = new Date(row.start_time);
     const endTime = new Date(row.end_time);
@@ -246,6 +249,7 @@ export async function checkReportHasCampaign(reportId: number): Promise<boolean>
       estimatedVolume,
       reportIds: row.reports ? [row.reports.id] : undefined,
       isJoined,
+      isAttended,
     };
   }
 

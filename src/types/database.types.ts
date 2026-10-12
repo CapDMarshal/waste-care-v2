@@ -104,18 +104,30 @@ export interface Database {
           profile_id: string
           joined_at: string
           is_attended: boolean | null
+          attended_at: string | null
+          check_in_lat: number | null
+          check_in_lng: number | null
+          check_in_distance: number | null
         }
         Insert: {
           campaign_id: number
           profile_id: string
           joined_at?: string
           is_attended?: boolean | null
+          attended_at?: string | null
+          check_in_lat?: number | null
+          check_in_lng?: number | null
+          check_in_distance?: number | null
         }
         Update: {
           campaign_id?: number
           profile_id?: string
           joined_at?: string
           is_attended?: boolean | null
+          attended_at?: string | null
+          check_in_lat?: number | null
+          check_in_lng?: number | null
+          check_in_distance?: number | null
         }
       }
       reports: {
@@ -316,6 +328,16 @@ export interface Database {
           hazardous_count: number
           total_count: number
         }[]
+      }
+      record_campaign_attendance: {
+        Args: {
+          p_campaign_id: number
+          p_user_id: string
+          p_user_lat: number
+          p_user_lng: number
+          p_max_distance_meters?: number
+        }
+        Returns: Json
       }
     }
     Enums: {

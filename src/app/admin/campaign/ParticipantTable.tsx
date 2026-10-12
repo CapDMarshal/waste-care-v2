@@ -10,6 +10,8 @@ export type ParticipantUI = {
   is_attended: boolean | null
   fullName: string
   email: string
+  attended_at?: string | null
+  check_in_distance?: number | null
 }
 
 interface ParticipantTableProps {
@@ -65,39 +67,53 @@ export function ParticipantTable({ campaignId, participants, isFinished = false 
               <td className="py-3 pr-4">
                 {isFinished ? (
                   // Read-only attendance badge when campaign is finished
-                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
-                    p.is_attended === true
-                      ? 'bg-[#059669]/15 dark:bg-[#059669]/20 text-[#059669] dark:text-emerald-300 border border-[#059669]/30'
-                      : p.is_attended === false
-                      ? 'bg-rose-100 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30'
-                      : 'bg-[#E2E8F0] dark:bg-[#1E293B] text-slate-700 dark:text-[#94A3B8] border border-[#CBD5E1] dark:border-[#334155]'
-                  }`}>
-                    {p.is_attended === true ? <><Check size={13} /> Hadir</> : p.is_attended === false ? <><X size={13} /> Tidak Hadir</> : '–'}
-                  </span>
+                  <div className="space-y-1">
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
+                      p.is_attended === true
+                        ? 'bg-[#059669]/15 dark:bg-[#059669]/20 text-[#059669] dark:text-emerald-300 border border-[#059669]/30'
+                        : p.is_attended === false
+                        ? 'bg-rose-100 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30'
+                        : 'bg-[#E2E8F0] dark:bg-[#1E293B] text-slate-700 dark:text-[#94A3B8] border border-[#CBD5E1] dark:border-[#334155]'
+                    }`}>
+                      {p.is_attended === true ? <><Check size={13} /> Hadir</> : p.is_attended === false ? <><X size={13} /> Tidak Hadir</> : '–'}
+                    </span>
+                    {p.is_attended === true && p.check_in_distance != null && (
+                      <div className="text-[10px] text-[#059669] dark:text-emerald-400 font-mono">
+                        GPS: {p.check_in_distance}m dari titik
+                      </div>
+                    )}
+                  </div>
                 ) : (
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleToggle(p.profile_id, true)}
-                      disabled={isPending || p.is_attended === true}
-                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                        p.is_attended === true
-                          ? 'bg-[#059669]/15 dark:bg-[#059669]/20 text-[#059669] dark:text-emerald-300 border border-[#059669]/40'
-                          : 'bg-[#F1F5F9] dark:bg-[#1E293B] text-slate-600 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-slate-200 hover:bg-[#E2E8F0] dark:hover:bg-[#334155] border border-[#CBD5E1] dark:border-[#334155]'
-                      } disabled:opacity-80`}
-                    >
-                      <Check size={13} /> Hadir
-                    </button>
-                    <button
-                      onClick={() => handleToggle(p.profile_id, false)}
-                      disabled={isPending || p.is_attended === false}
-                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                        p.is_attended === false
-                          ? 'bg-rose-100 dark:bg-rose-500/20 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/40'
-                          : 'bg-[#F1F5F9] dark:bg-[#1E293B] text-slate-600 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-slate-200 hover:bg-[#E2E8F0] dark:hover:bg-[#334155] border border-[#CBD5E1] dark:border-[#334155]'
-                      } disabled:opacity-80`}
-                    >
-                      <X size={13} /> Tidak Hadir
-                    </button>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleToggle(p.profile_id, true)}
+                        disabled={isPending || p.is_attended === true}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                          p.is_attended === true
+                            ? 'bg-[#059669]/15 dark:bg-[#059669]/20 text-[#059669] dark:text-emerald-300 border border-[#059669]/40'
+                            : 'bg-[#F1F5F9] dark:bg-[#1E293B] text-slate-600 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-slate-200 hover:bg-[#E2E8F0] dark:hover:bg-[#334155] border border-[#CBD5E1] dark:border-[#334155]'
+                        } disabled:opacity-80`}
+                      >
+                        <Check size={13} /> Hadir
+                      </button>
+                      <button
+                        onClick={() => handleToggle(p.profile_id, false)}
+                        disabled={isPending || p.is_attended === false}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                          p.is_attended === false
+                            ? 'bg-rose-100 dark:bg-rose-500/20 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/40'
+                            : 'bg-[#F1F5F9] dark:bg-[#1E293B] text-slate-600 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-slate-200 hover:bg-[#E2E8F0] dark:hover:bg-[#334155] border border-[#CBD5E1] dark:border-[#334155]'
+                        } disabled:opacity-80`}
+                      >
+                        <X size={13} /> Tidak Hadir
+                      </button>
+                    </div>
+                    {p.is_attended === true && p.check_in_distance != null && (
+                      <div className="text-[10px] text-[#059669] dark:text-emerald-400 font-mono">
+                        GPS: {p.check_in_distance}m dari titik
+                      </div>
+                    )}
                   </div>
                 )}
               </td>

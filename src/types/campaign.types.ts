@@ -17,6 +17,7 @@ export interface Campaign {
   estimatedVolume?: string;
   reportIds?: number[];
   isJoined?: boolean;
+  isAttended?: boolean;
 }
 
 export interface CampaignFilters {
