@@ -60,7 +60,7 @@ export default function NotifikasiPage() {
     switch (type) {
       case 'report_status':
         return (
-          <div className="bg-blue-100 p-2 rounded-full text-blue-600">
+          <div className="bg-blue-100 dark:bg-blue-950/60 p-2 rounded-full text-blue-600 dark:text-blue-400">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
@@ -69,7 +69,7 @@ export default function NotifikasiPage() {
       case 'campaign_update':
       case 'campaign_reminder':
         return (
-          <div className="bg-emerald-100 p-2 rounded-full text-emerald-600">
+          <div className="bg-emerald-100 dark:bg-emerald-950/60 p-2 rounded-full text-emerald-600 dark:text-emerald-400">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
@@ -77,7 +77,7 @@ export default function NotifikasiPage() {
         );
       default:
         return (
-          <div className="bg-gray-100 p-2 rounded-full text-gray-600">
+          <div className="bg-gray-100 dark:bg-slate-800 p-2 rounded-full text-gray-600 dark:text-slate-400">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -103,9 +103,9 @@ export default function NotifikasiPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="bg-white px-4 py-4 sticky top-0 z-10 shadow-sm">
-        <h1 className="text-xl font-bold text-gray-900">Notifikasi</h1>
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 pb-20 text-gray-800 dark:text-slate-100 transition-colors">
+      <div className="bg-white dark:bg-slate-900 px-4 py-4 sticky top-0 z-10 shadow-sm dark:border-b dark:border-slate-800">
+        <h1 className="text-xl font-bold text-gray-900 dark:text-white">Notifikasi</h1>
       </div>
 
       <div className="px-4 py-4">
@@ -114,24 +114,28 @@ export default function NotifikasiPage() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
           </div>
         ) : !user ? (
-          <div className="text-center mt-10 text-gray-500">
+          <div className="text-center mt-10 text-gray-500 dark:text-slate-400">
             Silakan login untuk melihat notifikasi Anda.
           </div>
         ) : notifications.length === 0 ? (
           <div className="text-center mt-20">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
-              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 dark:bg-slate-800 mb-4">
+              <svg className="w-8 h-8 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
             </div>
-            <p className="text-gray-500">Belum ada notifikasi</p>
+            <p className="text-gray-500 dark:text-slate-400">Belum ada notifikasi</p>
           </div>
         ) : (
           <div className="space-y-3">
             {notifications.map((notif) => (
               <div 
                 key={notif.id} 
-                className={`bg-white p-4 rounded-2xl shadow-sm border ${notif.is_read ? 'border-gray-100' : 'border-emerald-100 bg-emerald-50/30'}`}
+                className={`p-4 rounded-2xl shadow-sm border transition-colors ${
+                  notif.is_read 
+                    ? 'bg-white dark:bg-slate-900 border-gray-100 dark:border-slate-800' 
+                    : 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/60'
+                }`}
               >
                 <div className="flex gap-3">
                   <div className="flex-shrink-0 mt-1">
@@ -139,14 +143,14 @@ export default function NotifikasiPage() {
                   </div>
                   <div className="flex-1">
                     <div className="flex justify-between items-start">
-                      <h3 className={`text-sm font-semibold ${notif.is_read ? 'text-gray-900' : 'text-emerald-900'}`}>
+                      <h3 className={`text-sm font-semibold ${notif.is_read ? 'text-gray-900 dark:text-white' : 'text-emerald-900 dark:text-emerald-300'}`}>
                         {notif.title}
                       </h3>
-                      <span className="text-xs text-gray-500 whitespace-nowrap ml-2">
+                      <span className="text-xs text-gray-500 dark:text-slate-400 whitespace-nowrap ml-2">
                         {formatDate(notif.created_at)}
                       </span>
                     </div>
-                    <p className={`text-sm mt-1 ${notif.is_read ? 'text-gray-600' : 'text-gray-700'}`}>
+                    <p className={`text-sm mt-1 ${notif.is_read ? 'text-gray-600 dark:text-slate-400' : 'text-gray-700 dark:text-slate-300'}`}>
                       {notif.message}
                     </p>
                   </div>

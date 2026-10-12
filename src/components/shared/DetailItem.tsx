@@ -17,8 +17,8 @@ interface DetailItemProps {
 export const DetailItem: React.FC<DetailItemProps> = ({
   icon,
   iconImage,
-  iconBgColor = 'bg-gray-100',
-  iconColor = 'text-gray-600',
+  iconBgColor = 'bg-gray-100 dark:bg-slate-800',
+  iconColor = 'text-gray-600 dark:text-slate-300',
   title,
   description,
   actionText,
@@ -26,10 +26,10 @@ export const DetailItem: React.FC<DetailItemProps> = ({
   className = ''
 }) => {
   return (
-    <div className={`flex items-center space-x-3 p-4 bg-gray-50 rounded-xl border border-gray-200 ${className}`}>
+    <div className={`flex items-center space-x-3 p-4 bg-gray-50 dark:bg-slate-800/60 rounded-xl border border-gray-200 dark:border-slate-700 ${className}`}>
       {/* Icon - Center aligned */}
       <div className="flex-shrink-0 self-center">
-        <div className={`w-10 h-10 ${iconBgColor} rounded-lg flex items-center justify-center border border-gray-200`}>
+        <div className={`w-10 h-10 ${iconBgColor} rounded-lg flex items-center justify-center border border-gray-200 dark:border-slate-700`}>
           {iconImage ? (
             <img 
               src={iconImage} 
@@ -46,15 +46,15 @@ export const DetailItem: React.FC<DetailItemProps> = ({
       
       {/* Content - Flex 1 */}
       <div className="flex-1 min-w-0 text-left">
-        <p className="text-sm font-medium text-gray-900">{title}</p>
-        <p className="text-sm text-gray-600">{description}</p>
+        <p className="text-sm font-medium text-gray-900 dark:text-white">{title}</p>
+        <p className="text-sm text-gray-600 dark:text-slate-300">{description}</p>
       </div>
       
       {/* Action Button - Center aligned */}
       {onActionClick && actionText && (
         <button
           onClick={onActionClick}
-          className="flex-shrink-0 self-center px-2 py-1.5 text-sm font-medium text-black transition-colors border border-gray-300 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
+          className="flex-shrink-0 self-center px-2 py-1.5 text-sm font-medium text-black dark:text-white transition-colors border border-gray-300 dark:border-slate-600 rounded-md hover:bg-gray-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
         >
           {actionText}
         </button>

@@ -4,10 +4,10 @@ interface UploadHeaderProps {
 
 export default function UploadHeader({ onBack }: UploadHeaderProps) {
   return (
-    <div className="bg-white border-b border-gray-200 px-4 py-3">
+    <div className="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 px-4 py-3">
       <div className="flex items-center justify-between">
-        <button onClick={onBack} className="p-2 -ml-2">
-          <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button onClick={onBack} className="p-2 -ml-2 text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white">
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>

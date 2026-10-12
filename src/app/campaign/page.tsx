@@ -92,12 +92,12 @@ export default function CampaignPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="px-4 py-6 flex items-center justify-between gap-3">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 pb-20 text-gray-800 dark:text-slate-100 transition-colors">
+      <div className="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 sticky top-0 z-10 shadow-sm">
+        <div className="px-4 py-5 flex items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">Campaign Bersih-Bersih</h1>
-            <p className="text-gray-600 text-sm">Bergabunglah dalam aksi gotong royong membersihkan lingkungan</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Campaign Bersih-Bersih</h1>
+            <p className="text-gray-600 dark:text-slate-400 text-sm">Bergabunglah dalam aksi gotong royong membersihkan lingkungan</p>
           </div>
           <Link
             href="/scan-qr"
@@ -121,7 +121,9 @@ export default function CampaignPage() {
                 key={tab.value}
                 onClick={() => setFilter(tab.value as typeof filter)}
                 className={`px-4 py-2 rounded-xl font-medium text-sm whitespace-nowrap transition-colors ${
-                  filter === tab.value ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  filter === tab.value 
+                    ? 'bg-emerald-500 text-white' 
+                    : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-700'
                 }`}
               >
                 {tab.label}
@@ -156,9 +158,9 @@ export default function CampaignPage() {
       <div className="px-4 py-6">
         {filteredCampaigns.length === 0 ? (
           <div className="text-center py-12">
-            <div className="text-gray-300 text-6xl mb-4">📅</div>
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">Belum ada campaign</h3>
-            <p className="text-gray-500 text-sm">
+            <div className="text-gray-300 dark:text-slate-600 text-6xl mb-4">📅</div>
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-slate-200 mb-2">Belum ada campaign</h3>
+            <p className="text-gray-500 dark:text-slate-400 text-sm">
               {filter === 'all'
                 ? 'Campaign akan ditampilkan di sini'
                 : `Belum ada campaign dengan status ${

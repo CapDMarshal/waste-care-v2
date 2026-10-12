@@ -103,73 +103,73 @@ export default function EditProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 pb-20 text-gray-800 dark:text-slate-100 transition-colors">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+      <div className="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 sticky top-0 z-10">
         <div className="flex items-center px-4 py-4">
-          <button onClick={() => router.back()} className="mr-3">
-            <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button onClick={() => router.back()} className="mr-3 text-gray-700 dark:text-slate-300">
+            <svg className="w-6 h-6 text-gray-400 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <h1 className="text-xl font-bold text-gray-900">Edit Profile</h1>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Edit Profile</h1>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="p-6 space-y-6">
-        <div className="bg-white rounded-2xl p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Informasi Profile</h2>
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-800">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Informasi Profile</h2>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Nama Lengkap</label>
               <input
                 type="text"
                 value={formData.fullName}
                 onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-700"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 placeholder="Masukkan nama lengkap"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Email</label>
               <input
                 type="email"
                 value={user?.email || ''}
                 disabled
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-gray-100 dark:bg-slate-800/50 text-gray-500 dark:text-slate-400 cursor-not-allowed"
               />
-              <p className="text-xs text-gray-500 mt-1">Email tidak dapat diubah</p>
+              <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">Email tidak dapat diubah</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Ubah Password</h2>
-          <p className="text-sm text-gray-500 mb-4">Kosongkan jika tidak ingin mengubah password</p>
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-800">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Ubah Password</h2>
+          <p className="text-sm text-gray-500 dark:text-slate-400 mb-4">Kosongkan jika tidak ingin mengubah password</p>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Password Baru</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Password Baru</label>
               <input
                 type="password"
                 value={formData.newPassword}
                 onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-700"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 placeholder="Masukkan password baru"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Konfirmasi Password Baru</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Konfirmasi Password Baru</label>
               <input
                 type="password"
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-700"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 placeholder="Konfirmasi password baru"
               />
             </div>

@@ -25,7 +25,7 @@ export default function LocationInfo({
 
   return (
     <div className="text-center space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
         Konfirmasi titik lokasi
       </h1>
 

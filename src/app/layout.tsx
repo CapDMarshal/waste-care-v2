@@ -172,11 +172,12 @@ export default function RootLayout({
             __html: `
               (function() {
                 try {
-                  var theme = localStorage.getItem('wastecare_admin_theme');
-                  if (theme === 'light') {
-                    document.documentElement.classList.remove('dark');
-                  } else {
+                  var theme = localStorage.getItem('wastecare_theme') || localStorage.getItem('wastecare_admin_theme');
+                  // Light mode is the default for both user and admin
+                  if (theme === 'dark') {
                     document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
                   }
                 } catch (e) {}
               })();

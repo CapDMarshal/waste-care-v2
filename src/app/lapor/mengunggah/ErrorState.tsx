@@ -16,10 +16,10 @@ export default function ErrorState({ error, onRetry, onBack }: ErrorStateProps) 
       </div>
       
       <div className="space-y-3">
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
           Gagal mengunggah
         </h1>
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-slate-300">
           {error}
         </p>
       </div>
@@ -33,7 +33,7 @@ export default function ErrorState({ error, onRetry, onBack }: ErrorStateProps) 
         </button>
         <button
           onClick={onBack}
-          className="w-full bg-white hover:bg-gray-50 text-gray-700 font-medium py-3 px-4 rounded-lg border border-gray-300 transition-colors"
+          className="w-full bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 font-medium py-3 px-4 rounded-lg border border-gray-300 dark:border-slate-700 transition-colors"
         >
           Kembali
         </button>

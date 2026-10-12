@@ -16,7 +16,7 @@ import {
   LogOut,
   Info
 } from 'lucide-react';
-import { BottomNavigation, Button } from '@/components';
+import { BottomNavigation, Button, ThemeToggle } from '@/components';
 import { logout } from '@/lib/auth';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
@@ -127,31 +127,33 @@ export default function AkunPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-28 text-slate-800">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F17] pb-28 text-slate-800 dark:text-slate-100 transition-colors duration-200">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-30">
-        <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-slate-900">Profil Saya</h1>
-          <span className="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">
-            Warga Sleman Sembada
-          </span>
+      <div className="bg-white dark:bg-[#111827] border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 transition-colors duration-200">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white">Profil Saya</h1>
+            <span className="text-[11px] font-semibold px-2 py-0.5 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 rounded-full">
+              Warga Sleman Sembada
+            </span>
+          </div>
         </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
         {/* User Card */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
+        <div className="bg-white dark:bg-[#111827] rounded-2xl p-5 shadow-sm border border-slate-200/80 dark:border-slate-800 transition-colors duration-200">
           <div className="flex items-center space-x-4">
-            <div className="w-16 h-16 bg-gradient-to-tr from-emerald-600 to-teal-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md ring-2 ring-emerald-100">
+            <div className="w-16 h-16 bg-gradient-to-tr from-emerald-600 to-teal-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md ring-2 ring-emerald-100 dark:ring-emerald-900/40">
               <span className="text-2xl text-white font-bold">{initials}</span>
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-bold text-slate-900 truncate">{displayName}</h2>
-              <p className="text-slate-500 truncate text-xs">{user.email || 'Tidak ada email'}</p>
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white truncate">{displayName}</h2>
+              <p className="text-slate-500 dark:text-slate-400 truncate text-xs">{user.email || 'Tidak ada email'}</p>
 
               <div className="flex items-center space-x-2 mt-2">
                 <span
-                  className={`inline-flex items-center space-x-1 text-xs font-bold px-2.5 py-0.5 rounded-full border ${progress.activeBadge.bgLight} ${progress.activeBadge.text} ${progress.activeBadge.border}`}
+                  className={`inline-flex items-center space-x-1 text-xs font-bold px-2.5 py-0.5 rounded-full border ${progress.activeBadge.bgLight} ${progress.activeBadge.text} ${progress.activeBadge.border} dark:bg-slate-800/80`}
                 >
                   {renderBadgeIcon(progress.activeBadge.icon, 'w-3.5 h-3.5')}
                   <span>Level {progress.currentLevel} • {progress.activeBadge.name}</span>
@@ -162,53 +164,53 @@ export default function AkunPage() {
         </div>
 
         {/* Gamification Level & Progress Card */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 space-y-4">
+        <div className="bg-white dark:bg-[#111827] rounded-2xl p-5 shadow-sm border border-slate-200/80 dark:border-slate-800 space-y-4 transition-colors duration-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <div className={`p-2 rounded-xl bg-gradient-to-tr ${progress.activeBadge.gradient} text-white shadow-sm`}>
                 {renderBadgeIcon(progress.activeBadge.icon, 'w-4 h-4')}
               </div>
               <div>
-                <h3 className="text-sm font-bold text-slate-900">{progress.levelTitle}</h3>
-                <p className="text-[11px] text-slate-500">{progress.activeBadge.description}</p>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">{progress.levelTitle}</h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">{progress.activeBadge.description}</p>
               </div>
             </div>
 
             <div className="text-right">
               <div className="flex items-center space-x-1 justify-end">
-                <span className="text-lg font-black text-slate-900">
+                <span className="text-lg font-black text-slate-900 dark:text-white">
                   {loadingExp ? '...' : userExp.toLocaleString()}
                 </span>
                 <span className="text-xs font-bold text-amber-500">XP</span>
               </div>
-              <span className="text-[10px] text-slate-400">Total Akumulasi</span>
+              <span className="text-[10px] text-slate-400 dark:text-slate-500">Total Akumulasi</span>
             </div>
           </div>
 
           {/* Progress Bar */}
           <div className="space-y-1.5 pt-1">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-slate-700">
+              <span className="font-semibold text-slate-700 dark:text-slate-300">
                 {progress.isMaxLevel ? 'Tingkat Maksimal' : `Progres Menuju Level ${progress.currentLevel + 1}`}
               </span>
-              <span className="font-bold text-emerald-700">{progress.progressPercent}%</span>
+              <span className="font-bold text-emerald-600 dark:text-emerald-400">{progress.progressPercent}%</span>
             </div>
 
-            <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200">
+            <div className="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-200 dark:border-slate-700">
               <div
                 className={`h-full rounded-full bg-gradient-to-r ${progress.activeBadge.gradient} transition-all duration-500`}
                 style={{ width: `${progress.progressPercent}%` }}
               />
             </div>
 
-            <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
+            <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 pt-0.5">
               <span>{userExp} XP</span>
               {!progress.isMaxLevel ? (
                 <span>
-                  Kurang <strong className="text-emerald-700">{progress.expNeeded} XP</strong> lagi ke Level {progress.currentLevel + 1}
+                  Kurang <strong className="text-emerald-600 dark:text-emerald-400 font-bold">{progress.expNeeded} XP</strong> lagi ke Level {progress.currentLevel + 1}
                 </span>
               ) : (
-                <span className="text-amber-600 font-semibold">Tingkat Tertinggi Dicapai!</span>
+                <span className="text-amber-500 dark:text-amber-400 font-semibold">Tingkat Tertinggi Dicapai!</span>
               )}
             </div>
           </div>
@@ -232,11 +234,11 @@ export default function AkunPage() {
         </div>
 
         {/* Section Galeri Lencana Kultural Sleman */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 space-y-3">
+        <div className="bg-white dark:bg-[#111827] rounded-2xl p-5 shadow-sm border border-slate-200/80 dark:border-slate-800 space-y-3 transition-colors duration-200">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-bold text-slate-900">Koleksi Lencana Lingkungan</h3>
-              <p className="text-[11px] text-slate-500">Apresiasi bertingkat kepedulian warga Sleman</p>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Koleksi Lencana Lingkungan</h3>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">Apresiasi bertingkat kepedulian warga Sleman</p>
             </div>
             <Sparkles className="w-4 h-4 text-amber-500" />
           </div>
@@ -251,15 +253,15 @@ export default function AkunPage() {
                   onClick={() => setSelectedBadge(badge)}
                   className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center justify-between relative ${
                     isUnlocked
-                      ? `${badge.bgLight} ${badge.border} shadow-xs hover:shadow`
-                      : 'bg-slate-50 border-slate-200/70 opacity-60 hover:opacity-80'
+                      ? `${badge.bgLight} dark:bg-slate-800/70 ${badge.border} dark:border-slate-700 shadow-xs hover:shadow`
+                      : 'bg-slate-50 dark:bg-slate-800/30 border-slate-200/70 dark:border-slate-800 opacity-60 hover:opacity-80'
                   }`}
                 >
                   <div
                     className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-2 shadow-xs ${
                       isUnlocked
-                        ? `bg-gradient-to-tr ${badge.gradient} text-white ring-2 ring-white`
-                        : 'bg-slate-200 text-slate-400'
+                        ? `bg-gradient-to-tr ${badge.gradient} text-white ring-2 ring-white dark:ring-slate-700`
+                        : 'bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500'
                     }`}
                   >
                     {isUnlocked ? (
@@ -269,8 +271,8 @@ export default function AkunPage() {
                     )}
                   </div>
 
-                  <span className="text-xs font-bold text-slate-900 line-clamp-1">{badge.name}</span>
-                  <span className="text-[10px] text-slate-500 mt-0.5">
+                  <span className="text-xs font-bold text-slate-900 dark:text-white line-clamp-1">{badge.name}</span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
                     {badge.minExp === 0 ? 'Mulai' : `≥ ${badge.minExp} XP`}
                   </span>
 
@@ -278,7 +280,7 @@ export default function AkunPage() {
                     className={`mt-2 text-[9px] font-bold px-2 py-0.5 rounded-full ${
                       isUnlocked
                         ? 'bg-emerald-600 text-white'
-                        : 'bg-slate-200 text-slate-600'
+                        : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
                     }`}
                   >
                     {isUnlocked ? 'Terbuka' : `${badge.progressToUnlock}%`}
@@ -289,43 +291,46 @@ export default function AkunPage() {
           </div>
         </div>
 
-        {/* Menu Navigasi Akun */}
-        <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200/80 divide-y divide-slate-100">
+        {/* Menu Navigasi Akun & Pengaturan Tema */}
+        <div className="bg-white dark:bg-[#111827] rounded-2xl overflow-hidden shadow-sm border border-slate-200/80 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 transition-colors duration-200">
+          {/* Dedicated Theme Toggle Setting Row */}
+          <ThemeToggle variant="setting-row" />
+
           <button
             onClick={() => router.push('/akun/edit-profile')}
-            className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
+            className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
           >
             <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-xl bg-slate-100 text-slate-600">
+              <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                 <User className="w-4 h-4" />
               </div>
-              <span className="font-semibold text-sm text-slate-900">Edit Profil</span>
+              <span className="font-semibold text-sm text-slate-900 dark:text-white">Edit Profil</span>
             </div>
             <ChevronRight className="w-4 h-4 text-slate-400" />
           </button>
 
           <button
             onClick={() => router.push('/akun/riwayat-laporan')}
-            className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
+            className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
           >
             <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-xl bg-slate-100 text-slate-600">
+              <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                 <FileText className="w-4 h-4" />
               </div>
-              <span className="font-semibold text-sm text-slate-900">Riwayat Laporan Sampah</span>
+              <span className="font-semibold text-sm text-slate-900 dark:text-white">Riwayat Laporan Sampah</span>
             </div>
             <ChevronRight className="w-4 h-4 text-slate-400" />
           </button>
 
           <button
             onClick={() => router.push('/akun/bantuan')}
-            className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
+            className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
           >
             <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-xl bg-slate-100 text-slate-600">
+              <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                 <HelpCircle className="w-4 h-4" />
               </div>
-              <span className="font-semibold text-sm text-slate-900">Pusat Bantuan & Edukasi</span>
+              <span className="font-semibold text-sm text-slate-900 dark:text-white">Pusat Bantuan & Edukasi</span>
             </div>
             <ChevronRight className="w-4 h-4 text-slate-400" />
           </button>
@@ -339,7 +344,7 @@ export default function AkunPage() {
             disabled={loggingOut}
             fullWidth
             variant="outline"
-            className="border-red-200 text-red-600 hover:bg-red-50 flex items-center justify-center space-x-2 py-3 rounded-xl font-bold"
+            className="border-red-200 dark:border-red-900/40 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 flex items-center justify-center space-x-2 py-3 rounded-xl font-bold"
           >
             <LogOut className="w-4 h-4" />
             <span>{loggingOut ? 'Keluar...' : 'Keluar dari Akun'}</span>
@@ -350,9 +355,9 @@ export default function AkunPage() {
       {/* Modal Detail Lencana Kultural */}
       {selectedBadge && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
+          <div className="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
             <div
-              className={`w-20 h-20 rounded-3xl mx-auto flex items-center justify-center shadow-lg bg-gradient-to-tr ${selectedBadge.gradient} text-white ring-4 ring-slate-100`}
+              className={`w-20 h-20 rounded-3xl mx-auto flex items-center justify-center shadow-lg bg-gradient-to-tr ${selectedBadge.gradient} text-white ring-4 ring-slate-100 dark:ring-slate-800`}
             >
               {renderBadgeIcon(selectedBadge.icon, 'w-10 h-10')}
             </div>
@@ -361,18 +366,18 @@ export default function AkunPage() {
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                 Level {selectedBadge.level} • {selectedBadge.title}
               </span>
-              <h3 className="text-xl font-black text-slate-900">{selectedBadge.name}</h3>
-              <p className="text-xs text-slate-600 pt-1 leading-relaxed">
+              <h3 className="text-xl font-black text-slate-900 dark:text-white">{selectedBadge.name}</h3>
+              <p className="text-xs text-slate-600 dark:text-slate-300 pt-1 leading-relaxed">
                 {selectedBadge.description}
               </p>
             </div>
 
-            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 text-left space-y-1">
-              <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-700">
-                <Info className="w-3.5 h-3.5 text-emerald-600" />
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-200/80 dark:border-slate-700 text-left space-y-1">
+              <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-700 dark:text-slate-300">
+                <Info className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span>Makna & Filosofi Kultural:</span>
               </div>
-              <p className="text-[11px] text-slate-600 italic">
+              <p className="text-[11px] text-slate-600 dark:text-slate-400 italic">
                 "{selectedBadge.philosophy}"
               </p>
             </div>
@@ -380,7 +385,7 @@ export default function AkunPage() {
             <div className="pt-1">
               <button
                 onClick={() => setSelectedBadge(null)}
-                className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-colors"
+                className="w-full py-2.5 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition-colors"
               >
                 Tutup
               </button>

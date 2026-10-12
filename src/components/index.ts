@@ -13,6 +13,7 @@ export { default as DetailItem } from './shared/DetailItem';
 export { default as PWAInstallPrompt } from './shared/PWAInstallPrompt';
 export { PermissionGuard } from './shared/PermissionGuard';
 export { PhotoCapture } from './shared/PhotoCapture';
+export { default as ThemeToggle } from './shared/ThemeToggle';
 
 // Providers - Tree-shakeable exports
 export { AuthProvider, useAuthContext } from './providers/AuthProvider';

@@ -10,7 +10,7 @@ export default function LaporFotoPage() {
   const { loading, handleAddPhoto, handleBack } = usePhotoNavigation();
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors">
       <PhotoStepHeader onBack={handleBack} />
 
       <div className="flex-1 flex flex-col justify-center px-6 py-8">

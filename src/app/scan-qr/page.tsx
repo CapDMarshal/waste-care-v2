@@ -267,7 +267,7 @@ export default function ScanQrPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white pb-24 relative flex flex-col justify-between select-none">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white pb-24 relative flex flex-col justify-between select-none transition-colors">
       
       {/* Inline styles to ensure html5-qrcode video element fills viewport smoothly */}
       <style jsx global>{`
@@ -292,15 +292,15 @@ export default function ScanQrPage() {
       <header className="px-4 pt-5 pb-3 flex items-center justify-between z-20">
         <button
           onClick={() => router.back()}
-          className="p-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-colors"
+          className="p-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white backdrop-blur-md transition-colors"
           aria-label="Kembali"
         >
           <ArrowLeft size={18} />
         </button>
 
         <div className="text-center">
-          <h1 className="text-base font-extrabold tracking-tight">Presensi Kampanye</h1>
-          <p className="text-[11px] text-emerald-400 font-semibold flex items-center justify-center gap-1">
+          <h1 className="text-base font-extrabold text-slate-900 dark:text-white tracking-tight">Presensi Kampanye</h1>
+          <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center justify-center gap-1">
             <ShieldCheck size={12} /> QR Dinamis & Geofencing
           </p>
         </div>
@@ -309,7 +309,9 @@ export default function ScanQrPage() {
           <button
             onClick={toggleTorch}
             className={`p-2.5 rounded-2xl backdrop-blur-md transition-colors ${
-              isTorchOn ? 'bg-amber-400 text-slate-950 font-bold' : 'bg-white/10 text-white hover:bg-white/20'
+              isTorchOn 
+                ? 'bg-amber-400 text-slate-950 font-bold' 
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-white/10 dark:text-white dark:hover:bg-white/20'
             }`}
             aria-label="Flashlight"
           >
@@ -322,33 +324,33 @@ export default function ScanQrPage() {
 
       {/* GPS Status Floating Indicator */}
       <div className="px-4 z-20">
-        <div className="bg-slate-900/90 backdrop-blur-md border border-white/10 rounded-2xl p-3 flex items-center justify-between text-xs shadow-lg">
+        <div className="bg-white/95 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-2xl p-3 flex items-center justify-between text-xs shadow-sm dark:shadow-lg transition-colors">
           <div className="flex items-center gap-2.5">
             <div
               className={`w-8 h-8 rounded-xl flex items-center justify-center ${
                 gpsStatus === 'ready'
-                  ? 'bg-emerald-500/20 text-emerald-400'
+                  ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400'
                   : gpsStatus === 'requesting'
-                  ? 'bg-blue-500/20 text-blue-400 animate-pulse'
-                  : 'bg-rose-500/20 text-rose-400'
+                  ? 'bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 animate-pulse'
+                  : 'bg-rose-100 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400'
               }`}
             >
               <Navigation size={15} />
             </div>
             <div>
-              <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Status Geofencing GPS</p>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">Status Geofencing GPS</p>
               {gpsStatus === 'ready' && userCoords ? (
-                <p className="text-emerald-400 font-semibold text-xs flex items-center gap-1.5">
+                <p className="text-emerald-600 dark:text-emerald-400 font-semibold text-xs flex items-center gap-1.5">
                   <span>GPS Terkoneksi</span>
-                  <span className="text-[10px] text-slate-300 font-normal">(&plusmn;{userCoords.accuracy}m)</span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-300 font-normal">(&plusmn;{userCoords.accuracy}m)</span>
                 </p>
               ) : gpsStatus === 'requesting' ? (
-                <p className="text-slate-300 text-xs flex items-center gap-1.5">
-                  <Loader2 size={11} className="animate-spin text-blue-400" />
+                <p className="text-slate-600 dark:text-slate-300 text-xs flex items-center gap-1.5">
+                  <Loader2 size={11} className="animate-spin text-blue-500 dark:text-blue-400" />
                   <span>Mendeteksi akurasi satelit...</span>
                 </p>
               ) : (
-                <p className="text-rose-400 font-semibold text-xs">GPS Tidak Tersedia</p>
+                <p className="text-rose-600 dark:text-rose-400 font-semibold text-xs">GPS Tidak Tersedia</p>
               )}
             </div>
           </div>
@@ -356,7 +358,7 @@ export default function ScanQrPage() {
           {gpsStatus !== 'ready' && (
             <button
               onClick={requestLocation}
-              className="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-[11px] font-bold text-white transition cursor-pointer"
+              className="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 dark:bg-white/10 dark:hover:bg-white/20 dark:border-transparent text-[11px] font-bold dark:text-white transition cursor-pointer"
             >
               Coba Lagi
             </button>
@@ -364,15 +366,15 @@ export default function ScanQrPage() {
         </div>
 
         {gpsError && (
-          <div className="mt-2 p-3 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2">
-            <AlertTriangle size={15} className="shrink-0 mt-0.5 text-rose-400" />
+          <div className="mt-2 p-3 rounded-2xl bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs flex items-start gap-2">
+            <AlertTriangle size={15} className="shrink-0 mt-0.5 text-rose-500 dark:text-rose-400" />
             <p className="text-[11px] leading-relaxed">{gpsError}</p>
           </div>
         )}
 
         {gpsStatus === 'ready' && userCoords && userCoords.accuracy > 40 && (
-          <div className="mt-2 p-2.5 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs flex items-start gap-2">
-            <AlertTriangle size={14} className="shrink-0 mt-0.5 text-amber-400" />
+          <div className="mt-2 p-2.5 rounded-2xl bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs flex items-start gap-2">
+            <AlertTriangle size={14} className="shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
             <p className="text-[11px] leading-relaxed">
               Akurasi GPS agak rendah (&plusmn;{userCoords.accuracy}m). Disarankan bergerak ke area terbuka untuk akurasi optimal.
             </p>
@@ -382,7 +384,7 @@ export default function ScanQrPage() {
 
       {/* Viewport Scanner Container */}
       <main className="flex-1 flex flex-col items-center justify-center px-4 py-4 relative z-10">
-        <div className="w-full max-w-sm aspect-square relative rounded-3xl overflow-hidden bg-black border-2 border-white/20 shadow-2xl flex items-center justify-center">
+        <div className="w-full max-w-sm aspect-square relative rounded-3xl overflow-hidden bg-black border-2 border-slate-200 dark:border-white/20 shadow-xl dark:shadow-2xl flex items-center justify-center">
           
           {/* HTML5 QR Code DOM Target */}
           <div id="qr-reader-viewport" className="w-full h-full object-cover" />
@@ -417,11 +419,11 @@ export default function ScanQrPage() {
 
           {/* Camera Error / Permission Fallback */}
           {cameraError && !isProcessing && (
-            <div className="absolute inset-0 bg-slate-900 p-6 flex flex-col items-center justify-center text-center space-y-3 z-20">
-              <div className="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center">
+            <div className="absolute inset-0 bg-slate-100 dark:bg-slate-900 p-6 flex flex-col items-center justify-center text-center space-y-3 z-20">
+              <div className="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center">
                 <Camera size={24} />
               </div>
-              <p className="text-xs text-rose-300 leading-relaxed">{cameraError}</p>
+              <p className="text-xs text-rose-700 dark:text-rose-300 leading-relaxed">{cameraError}</p>
               <button
                 onClick={startScanner}
                 className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-md transition cursor-pointer"
@@ -433,7 +435,7 @@ export default function ScanQrPage() {
         </div>
 
         {/* Scan instruction tooltip */}
-        <p className="mt-4 text-xs text-slate-400 text-center max-w-xs leading-relaxed">
+        <p className="mt-4 text-xs text-slate-500 dark:text-slate-400 text-center max-w-xs leading-relaxed">
           Arahkan kamera ke layar QR Code dinamis koordinator di lokasi kampanye.
         </p>
 
@@ -449,7 +451,7 @@ export default function ScanQrPage() {
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={isProcessing}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-slate-300 transition cursor-pointer"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 shadow-sm dark:bg-white/10 dark:hover:bg-white/20 dark:text-slate-300 dark:border-transparent text-xs font-semibold transition cursor-pointer"
           >
             <ImageIcon size={14} />
             <span>Pilih dari Galeri</span>
@@ -459,22 +461,22 @@ export default function ScanQrPage() {
 
       {/* Result Feedback Modal */}
       {showResultModal && checkInResult && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-[#0B0F17] text-slate-900 dark:text-white rounded-3xl border border-[#E2E8F0] dark:border-[#1E293B] shadow-2xl w-full max-w-md p-6 space-y-5 animate-in slide-in-from-bottom-6 sm:zoom-in-95 duration-300">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 dark:bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#0B0F17] text-slate-900 dark:text-white rounded-3xl border border-slate-200 dark:border-[#1E293B] shadow-2xl w-full max-w-md p-6 space-y-5 animate-in slide-in-from-bottom-6 sm:zoom-in-95 duration-300">
             
             {/* Header Icon */}
             <div className="flex flex-col items-center text-center space-y-2">
               {checkInResult.success ? (
-                <div className="w-16 h-16 rounded-3xl bg-emerald-500/15 text-[#059669] dark:text-emerald-400 flex items-center justify-center animate-bounce">
+                <div className="w-16 h-16 rounded-3xl bg-emerald-100 dark:bg-emerald-500/15 text-[#059669] dark:text-emerald-400 flex items-center justify-center animate-bounce">
                   <CheckCircle2 size={36} />
                 </div>
               ) : (
-                <div className="w-16 h-16 rounded-3xl bg-rose-500/15 text-rose-500 flex items-center justify-center">
+                <div className="w-16 h-16 rounded-3xl bg-rose-100 dark:bg-rose-500/15 text-rose-500 flex items-center justify-center">
                   <XCircle size={36} />
                 </div>
               )}
 
-              <h2 className="text-xl font-extrabold tracking-tight">
+              <h2 className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                 {checkInResult.success ? 'Presensi Berhasil!' : 'Presensi Gagal'}
               </h2>
 
@@ -485,7 +487,7 @@ export default function ScanQrPage() {
 
             {/* Success Details Card */}
             {checkInResult.success ? (
-              <div className="bg-[#F8FAFC] dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#1E293B] rounded-2xl p-4 space-y-3">
+              <div className="bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] rounded-2xl p-4 space-y-3">
                 {checkInResult.campaignTitle && (
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-slate-500 dark:text-[#94A3B8]">Kampanye</span>
@@ -505,12 +507,12 @@ export default function ScanQrPage() {
                 )}
 
                 {checkInResult.newExp != null && (
-                  <div className="pt-2 border-t border-[#E2E8F0] dark:border-[#1E293B] flex items-center justify-between">
+                  <div className="pt-2 border-t border-slate-200 dark:border-[#1E293B] flex items-center justify-between">
                     <div className="flex items-center gap-1.5 text-xs text-amber-500 font-bold">
                       <Sparkles size={15} />
                       <span>Reward Kehadiran</span>
                     </div>
-                    <span className="px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-500 font-extrabold text-xs">
+                    <span className="px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-500 font-extrabold text-xs">
                       +100 EXP
                     </span>
                   </div>
@@ -518,8 +520,8 @@ export default function ScanQrPage() {
               </div>
             ) : (
               /* Error Details Card */
-              <div className="bg-rose-500/10 border border-rose-500/20 rounded-2xl p-4 text-xs space-y-2">
-                <div className="flex items-center gap-2 font-bold text-rose-500 dark:text-rose-400">
+              <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 rounded-2xl p-4 text-xs space-y-2">
+                <div className="flex items-center gap-2 font-bold text-rose-600 dark:text-rose-400">
                   <AlertTriangle size={15} />
                   <span>Informasi Verifikasi:</span>
                 </div>
@@ -557,7 +559,7 @@ export default function ScanQrPage() {
 
               <Link
                 href="/campaign"
-                className="w-full py-2.5 rounded-xl bg-slate-100 dark:bg-[#1E293B] hover:bg-slate-200 dark:hover:bg-[#334155] text-slate-700 dark:text-slate-300 font-bold text-xs flex items-center justify-center transition"
+                className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-[#1E293B] dark:hover:bg-[#334155] dark:text-slate-300 font-bold text-xs flex items-center justify-center transition"
               >
                 Kembali ke Beranda Kampanye
               </Link>

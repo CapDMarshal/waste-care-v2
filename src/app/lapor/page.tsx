@@ -37,7 +37,7 @@ export default function LaporGPSPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors">
       {toast && (
         <Toast
           message={toast.message}

@@ -103,30 +103,30 @@ export default function LeaderboardPage() {
   const userProgress = calculateLevelProgress(currentUserRank?.exp || 0);
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-36 text-slate-800">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-36 text-slate-800 dark:text-slate-100 transition-colors">
       {/* Top Header */}
-      <div className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200">
+      <div className="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <button
               onClick={() => router.back()}
               aria-label="Kembali"
-              className="p-2 -ml-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+              className="p-2 -ml-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <div>
               <div className="flex items-center space-x-2">
                 <Trophy className="w-5 h-5 text-amber-500" />
-                <h1 className="text-lg font-bold text-slate-900 leading-tight">Papan Peringkat Sleman</h1>
+                <h1 className="text-lg font-bold text-slate-900 dark:text-white leading-tight">Papan Peringkat Sleman</h1>
               </div>
-              <p className="text-xs text-slate-500">Peringkat kontribusi warga & aksi lingkungan</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Peringkat kontribusi warga & aksi lingkungan</p>
             </div>
           </div>
 
           <button
             onClick={() => setShowRulesModal(true)}
-            className="flex items-center space-x-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full border border-emerald-200 hover:bg-emerald-100 transition-colors"
+            className="flex items-center space-x-1.5 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 text-xs font-semibold rounded-full border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors"
           >
             <Info className="w-3.5 h-3.5" />
             <span>Aturan XP</span>
@@ -136,7 +136,7 @@ export default function LeaderboardPage() {
 
       <div className="max-w-2xl mx-auto px-4 pt-4 space-y-6">
         {/* Banner Motivasi Sleman */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 p-4 text-white shadow-md">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 dark:from-emerald-700 dark:via-teal-800 dark:to-emerald-800 p-4 text-white shadow-md">
           <div className="relative z-10 flex items-start justify-between">
             <div className="space-y-1">
               <span className="inline-flex items-center space-x-1 text-[11px] font-semibold bg-emerald-500/40 px-2 py-0.5 rounded-full border border-emerald-300/30">
@@ -157,17 +157,17 @@ export default function LeaderboardPage() {
         </div>
 
         {/* Podium Top 3 */}
-        <section className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+        <section className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm transition-colors">
           <div className="text-center mb-4">
-            <h3 className="text-sm font-bold text-slate-900 tracking-wide uppercase">Top Kontributor Sleman</h3>
-            <p className="text-xs text-slate-500">Pahlawan lingkungan teraktif bulan ini</p>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white tracking-wide uppercase">Top Kontributor Sleman</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Pahlawan lingkungan teraktif bulan ini</p>
           </div>
 
           {loading ? (
             <div className="flex justify-center items-end h-56 space-x-3 pt-6 animate-pulse">
-              <div className="w-24 h-36 bg-slate-200 rounded-t-2xl" />
-              <div className="w-28 h-48 bg-slate-300 rounded-t-2xl" />
-              <div className="w-24 h-28 bg-slate-200 rounded-t-2xl" />
+              <div className="w-24 h-36 bg-slate-200 dark:bg-slate-800 rounded-t-2xl" />
+              <div className="w-28 h-48 bg-slate-300 dark:bg-slate-700 rounded-t-2xl" />
+              <div className="w-24 h-28 bg-slate-200 dark:bg-slate-800 rounded-t-2xl" />
             </div>
           ) : (
             <div className="grid grid-cols-3 gap-2 items-end pt-4 pb-1">
@@ -176,26 +176,26 @@ export default function LeaderboardPage() {
                 {top2 ? (
                   <>
                     <div className="relative mb-2 flex flex-col items-center">
-                      <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-slate-300 to-slate-100 border-2 border-slate-300 shadow flex items-center justify-center text-slate-700 font-bold text-sm">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-slate-300 to-slate-100 dark:from-slate-700 dark:to-slate-600 border-2 border-slate-300 dark:border-slate-600 shadow flex items-center justify-center text-slate-700 dark:text-slate-200 font-bold text-sm">
                         {getInitials(top2.full_name, top2.email)}
                       </div>
-                      <span className="absolute -bottom-2 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-slate-200 text-slate-700 border border-slate-300 shadow-sm">
+                      <span className="absolute -bottom-2 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 shadow-sm">
                         #2
                       </span>
                     </div>
-                    <span className="text-xs font-semibold text-slate-800 text-center truncate max-w-full px-1">
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 text-center truncate max-w-full px-1">
                       {top2.full_name}
                     </span>
-                    <span className="text-[11px] font-bold text-slate-600 mt-0.5">
+                    <span className="text-[11px] font-bold text-slate-600 dark:text-slate-400 mt-0.5">
                       {top2.exp.toLocaleString()} XP
                     </span>
-                    <div className="w-full h-24 mt-3 rounded-t-xl bg-gradient-to-t from-slate-200 via-slate-100 to-white border-t-2 border-slate-300 flex flex-col items-center justify-center shadow-inner">
+                    <div className="w-full h-24 mt-3 rounded-t-xl bg-gradient-to-t from-slate-200 via-slate-100 to-white dark:from-slate-800 dark:via-slate-800/90 dark:to-slate-750 border-t-2 border-slate-300 dark:border-slate-600 flex flex-col items-center justify-center shadow-inner">
                       <span className="text-xl">🥈</span>
-                      <span className="text-[10px] font-bold text-slate-500 uppercase mt-1">Perak</span>
+                      <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mt-1">Perak</span>
                     </div>
                   </>
                 ) : (
-                  <div className="w-full h-24 rounded-t-xl bg-slate-100 border-t border-slate-200 flex flex-col items-center justify-center text-slate-400">
+                  <div className="w-full h-24 rounded-t-xl bg-slate-100 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center text-slate-400 dark:text-slate-600">
                     <span className="text-xs font-medium">Kosong</span>
                   </div>
                 )}
@@ -207,26 +207,26 @@ export default function LeaderboardPage() {
                   <>
                     <div className="relative mb-2 flex flex-col items-center">
                       <Crown className="w-6 h-6 text-amber-500 animate-bounce -mb-1" />
-                      <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-amber-400 via-yellow-300 to-amber-200 border-2 border-amber-400 shadow-md flex items-center justify-center text-amber-950 font-extrabold text-base ring-4 ring-amber-100">
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-amber-400 via-yellow-300 to-amber-200 border-2 border-amber-400 shadow-md flex items-center justify-center text-amber-950 font-extrabold text-base ring-4 ring-amber-100 dark:ring-amber-950/60">
                         {getInitials(top1.full_name, top1.email)}
                       </div>
                       <span className="absolute -bottom-2 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500 text-amber-950 border border-amber-300 shadow">
                         #1
                       </span>
                     </div>
-                    <span className="text-xs font-bold text-slate-900 text-center truncate max-w-full px-1">
+                    <span className="text-xs font-bold text-slate-900 dark:text-white text-center truncate max-w-full px-1">
                       {top1.full_name}
                     </span>
-                    <span className="text-xs font-extrabold text-amber-600 mt-0.5">
+                    <span className="text-xs font-extrabold text-amber-600 dark:text-amber-400 mt-0.5">
                       {top1.exp.toLocaleString()} XP
                     </span>
-                    <div className="w-full h-32 mt-3 rounded-t-xl bg-gradient-to-t from-amber-200 via-yellow-100 to-amber-50 border-t-2 border-amber-400 flex flex-col items-center justify-center shadow-inner">
+                    <div className="w-full h-32 mt-3 rounded-t-xl bg-gradient-to-t from-amber-200 via-yellow-100 to-amber-50 dark:from-amber-950/60 dark:via-amber-900/40 dark:to-slate-900 border-t-2 border-amber-400 dark:border-amber-500 flex flex-col items-center justify-center shadow-inner">
                       <span className="text-2xl">🥇</span>
-                      <span className="text-[10px] font-extrabold text-amber-800 uppercase mt-1">Emas</span>
+                      <span className="text-[10px] font-extrabold text-amber-800 dark:text-amber-300 uppercase mt-1">Emas</span>
                     </div>
                   </>
                 ) : (
-                  <div className="w-full h-32 rounded-t-xl bg-slate-100 border-t border-slate-200 flex flex-col items-center justify-center text-slate-400">
+                  <div className="w-full h-32 rounded-t-xl bg-slate-100 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center text-slate-400 dark:text-slate-600">
                     <span className="text-xs font-medium">Kosong</span>
                   </div>
                 )}
@@ -244,19 +244,19 @@ export default function LeaderboardPage() {
                         #3
                       </span>
                     </div>
-                    <span className="text-xs font-semibold text-slate-800 text-center truncate max-w-full px-1">
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 text-center truncate max-w-full px-1">
                       {top3.full_name}
                     </span>
-                    <span className="text-[11px] font-bold text-amber-800 mt-0.5">
+                    <span className="text-[11px] font-bold text-amber-800 dark:text-amber-400 mt-0.5">
                       {top3.exp.toLocaleString()} XP
                     </span>
-                    <div className="w-full h-20 mt-3 rounded-t-xl bg-gradient-to-t from-amber-100 via-amber-50 to-white border-t-2 border-amber-600 flex flex-col items-center justify-center shadow-inner">
+                    <div className="w-full h-20 mt-3 rounded-t-xl bg-gradient-to-t from-amber-100 via-amber-50 to-white dark:from-amber-950/40 dark:via-amber-900/20 dark:to-slate-900 border-t-2 border-amber-600 dark:border-amber-600 flex flex-col items-center justify-center shadow-inner">
                       <span className="text-xl">🥉</span>
-                      <span className="text-[10px] font-bold text-amber-800 uppercase mt-1">Perunggu</span>
+                      <span className="text-[10px] font-bold text-amber-800 dark:text-amber-300 uppercase mt-1">Perunggu</span>
                     </div>
                   </>
                 ) : (
-                  <div className="w-full h-20 rounded-t-xl bg-slate-100 border-t border-slate-200 flex flex-col items-center justify-center text-slate-400">
+                  <div className="w-full h-20 rounded-t-xl bg-slate-100 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center text-slate-400 dark:text-slate-600">
                     <span className="text-xs font-medium">Kosong</span>
                   </div>
                 )}
@@ -268,21 +268,21 @@ export default function LeaderboardPage() {
         {/* Daftar Kontributor Peringkat 4 - 50 */}
         <section className="space-y-3">
           <div className="flex items-center justify-between px-1">
-            <h3 className="text-sm font-bold text-slate-900">Peringkat Kontributor Warga</h3>
-            <span className="text-xs text-slate-500 font-medium">{leaderboard.length} Relawan Terdaftar</span>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Peringkat Kontributor Warga</h3>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">{leaderboard.length} Relawan Terdaftar</span>
           </div>
 
           {loading ? (
             <div className="space-y-2">
               {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="h-16 bg-white rounded-xl border border-slate-200 animate-pulse" />
+                <div key={i} className="h-16 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 animate-pulse" />
               ))}
             </div>
           ) : leaderboard.length === 0 ? (
-            <div className="bg-white rounded-2xl p-8 text-center border border-slate-200">
-              <Trophy className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-              <p className="text-sm font-semibold text-slate-700">Belum ada data kontributor</p>
-              <p className="text-xs text-slate-500 mt-1">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 text-center border border-slate-200 dark:border-slate-800">
+              <Trophy className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Belum ada data kontributor</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                 Jadilah warga pertama yang melaporkan sampah liar untuk menempati podium Juara 1!
               </p>
             </div>
@@ -298,8 +298,8 @@ export default function LeaderboardPage() {
                     key={item.user_id}
                     className={`flex items-center justify-between p-3.5 rounded-2xl transition-all ${
                       isCurrentUser
-                        ? 'bg-emerald-50/90 border-2 border-emerald-500 shadow-sm'
-                        : 'bg-white border border-slate-200/90 hover:border-slate-300'
+                        ? 'bg-emerald-50/90 dark:bg-emerald-950/40 border-2 border-emerald-500 dark:border-emerald-500 shadow-sm'
+                        : 'bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
                     }`}
                   >
                     <div className="flex items-center space-x-3 min-w-0">
@@ -308,7 +308,7 @@ export default function LeaderboardPage() {
                         {item.rank <= 3 ? (
                           <span className="text-lg">{item.rank === 1 ? '🥇' : item.rank === 2 ? '🥈' : '🥉'}</span>
                         ) : (
-                          <span className="text-sm font-extrabold text-slate-600">#{item.rank}</span>
+                          <span className="text-sm font-extrabold text-slate-600 dark:text-slate-400">#{item.rank}</span>
                         )}
                       </div>
 
@@ -317,7 +317,7 @@ export default function LeaderboardPage() {
                         className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
                           isCurrentUser
                             ? 'bg-emerald-600 text-white'
-                            : 'bg-slate-100 text-slate-700 border border-slate-200'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
                         }`}
                       >
                         {getInitials(item.full_name, item.email)}
@@ -326,7 +326,7 @@ export default function LeaderboardPage() {
                       {/* Info Kontributor */}
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center space-x-1.5">
-                          <h4 className="text-sm font-bold text-slate-900 truncate">
+                          <h4 className="text-sm font-bold text-slate-900 dark:text-white truncate">
                             {item.full_name}
                           </h4>
                           {isCurrentUser && (
@@ -345,8 +345,8 @@ export default function LeaderboardPage() {
                             <span>{progress.activeBadge.name}</span>
                           </span>
 
-                          <span className="text-[11px] text-slate-400">•</span>
-                          <span className="text-[11px] text-slate-500">
+                          <span className="text-[11px] text-slate-400 dark:text-slate-500">•</span>
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400">
                             {item.reports_count} lap. • {item.campaigns_attended_count} aksi
                           </span>
                         </div>
@@ -356,12 +356,12 @@ export default function LeaderboardPage() {
                     {/* Total EXP */}
                     <div className="text-right flex-shrink-0 pl-2">
                       <div className="flex items-center space-x-1 justify-end">
-                        <span className="text-sm font-extrabold text-slate-900">
+                        <span className="text-sm font-extrabold text-slate-900 dark:text-white">
                           {item.exp.toLocaleString()}
                         </span>
                         <span className="text-[10px] font-bold text-amber-500">XP</span>
                       </div>
-                      <span className="text-[10px] text-slate-400">Level {progress.currentLevel}</span>
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500">Level {progress.currentLevel}</span>
                     </div>
                   </div>
                 );
@@ -375,7 +375,7 @@ export default function LeaderboardPage() {
       <div className="fixed bottom-16 left-0 right-0 z-30 px-4 py-2 pointer-events-none">
         <div className="max-w-2xl mx-auto pointer-events-auto">
           {currentUserRank?.isAuthenticated ? (
-            <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white rounded-2xl p-3.5 shadow-xl border border-slate-700 flex items-center justify-between">
+            <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-white rounded-2xl p-3.5 shadow-xl border border-slate-700 dark:border-slate-800 flex items-center justify-between">
               <div className="flex items-center space-x-3 min-w-0">
                 <div className="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-400 flex items-center justify-center text-emerald-300 font-bold text-xs flex-shrink-0">
                   {getInitials(currentUserRank.fullName, currentUserRank.email)}
@@ -424,16 +424,16 @@ export default function LeaderboardPage() {
 
       {/* Modal Penjelasan Aturan Gamifikasi Sleman */}
       {showRulesModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div className="fixed inset-0 z-50 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center space-x-2">
                 <Trophy className="w-5 h-5 text-amber-500" />
-                <h3 className="text-base font-bold text-slate-900">Aturan Gamifikasi & XP</h3>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">Aturan Gamifikasi & XP</h3>
               </div>
               <button
                 onClick={() => setShowRulesModal(false)}
-                className="text-slate-400 hover:text-slate-600 text-sm font-bold p-1"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm font-bold p-1"
               >
                 ✕
               </button>
@@ -441,39 +441,39 @@ export default function LeaderboardPage() {
 
             {/* Sumber Perolehan XP */}
             <div className="space-y-2.5">
-              <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wide">
+              <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
                 Cara Memperoleh XP
               </h4>
 
-              <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-start space-x-3">
+              <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 flex items-start space-x-3">
                 <div className="p-2 rounded-xl bg-emerald-600 text-white mt-0.5">
                   <CheckCircle className="w-4 h-4" />
                 </div>
                 <div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-xs font-bold text-slate-900">Laporan Sampah Disetujui</span>
-                    <span className="text-xs font-extrabold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
+                    <span className="text-xs font-bold text-slate-900 dark:text-white">Laporan Sampah Disetujui</span>
+                    <span className="text-xs font-extrabold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/60 px-1.5 py-0.5 rounded">
                       +50 XP
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+                  <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed">
                     Laporan harus diverifikasi valid oleh AI Vertex Gemini dan disahkan oleh petugas DLHK Sleman.
                   </p>
                 </div>
               </div>
 
-              <div className="p-3 rounded-2xl bg-blue-50 border border-blue-200 flex items-start space-x-3">
+              <div className="p-3 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 flex items-start space-x-3">
                 <div className="p-2 rounded-xl bg-blue-600 text-white mt-0.5">
                   <Flame className="w-4 h-4" />
                 </div>
                 <div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-xs font-bold text-slate-900">Hadir Aksi Bersih Lingkungan</span>
-                    <span className="text-xs font-extrabold text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded">
+                    <span className="text-xs font-bold text-slate-900 dark:text-white">Hadir Aksi Bersih Lingkungan</span>
+                    <span className="text-xs font-extrabold text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/60 px-1.5 py-0.5 rounded">
                       +100 XP
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+                  <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed">
                     Presensi mandiri via pemindaian Dynamic QR & validasi GPS radius ≤ 50 meter dari titik lokasi aksi.
                   </p>
                 </div>
@@ -482,51 +482,51 @@ export default function LeaderboardPage() {
 
             {/* Tingkatan Level & Lencana Kultural */}
             <div className="space-y-2.5 pt-2">
-              <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wide">
+              <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
                 Tingkatan Level & Lencana Kultural Sleman
               </h4>
 
               <div className="space-y-2">
-                <div className="p-3 rounded-2xl border border-emerald-200 bg-emerald-50/50 flex items-center space-x-3">
+                <div className="p-3 rounded-2xl border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/50 dark:bg-emerald-950/30 flex items-center space-x-3">
                   <div className="p-2.5 rounded-xl bg-emerald-600 text-white">
                     <Sprout className="w-4 h-4" />
                   </div>
                   <div>
                     <div className="flex items-center space-x-2">
-                      <span className="text-xs font-bold text-slate-900">Level 1: Tunas Hijau</span>
-                      <span className="text-[10px] font-semibold text-slate-500">0 - 199 XP</span>
+                      <span className="text-xs font-bold text-slate-900 dark:text-white">Level 1: Tunas Hijau</span>
+                      <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">0 - 199 XP</span>
                     </div>
-                    <p className="text-[11px] text-slate-600">
+                    <p className="text-[11px] text-slate-600 dark:text-slate-300">
                       Relawan Pemula. Langkah awal kepedulian warga Sleman.
                     </p>
                   </div>
                 </div>
 
-                <div className="p-3 rounded-2xl border border-blue-200 bg-blue-50/50 flex items-center space-x-3">
+                <div className="p-3 rounded-2xl border border-blue-200 dark:border-blue-800/60 bg-blue-50/50 dark:bg-blue-950/30 flex items-center space-x-3">
                   <div className="p-2.5 rounded-xl bg-blue-600 text-white">
                     <ShieldCheck className="w-4 h-4" />
                   </div>
                   <div>
                     <div className="flex items-center space-x-2">
-                      <span className="text-xs font-bold text-slate-900">Level 2: Cakra Lestari</span>
-                      <span className="text-[10px] font-semibold text-slate-500">200 - 499 XP</span>
+                      <span className="text-xs font-bold text-slate-900 dark:text-white">Level 2: Cakra Lestari</span>
+                      <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">200 - 499 XP</span>
                     </div>
-                    <p className="text-[11px] text-slate-600">
+                    <p className="text-[11px] text-slate-600 dark:text-slate-300">
                       Penjaga Lingkungan Sleman. Konsistensi aksi nyata lingkungan.
                     </p>
                   </div>
                 </div>
 
-                <div className="p-3 rounded-2xl border border-amber-300 bg-amber-50/70 flex items-center space-x-3">
+                <div className="p-3 rounded-2xl border border-amber-300 dark:border-amber-800/60 bg-amber-50/70 dark:bg-amber-950/30 flex items-center space-x-3">
                   <div className="p-2.5 rounded-xl bg-amber-500 text-white">
                     <Crown className="w-4 h-4" />
                   </div>
                   <div>
                     <div className="flex items-center space-x-2">
-                      <span className="text-xs font-bold text-slate-900">Level 3: Adipura Sleman</span>
-                      <span className="text-[10px] font-semibold text-amber-700">≥ 500 XP</span>
+                      <span className="text-xs font-bold text-slate-900 dark:text-white">Level 3: Adipura Sleman</span>
+                      <span className="text-[10px] font-semibold text-amber-700 dark:text-amber-400">≥ 500 XP</span>
                     </div>
-                    <p className="text-[11px] text-slate-600">
+                    <p className="text-[11px] text-slate-600 dark:text-slate-300">
                       Pahlawan Kebersihan Sleman. Puncak kehormatan sipil warga.
                     </p>
                   </div>
@@ -537,7 +537,7 @@ export default function LeaderboardPage() {
             <div className="pt-3">
               <button
                 onClick={() => setShowRulesModal(false)}
-                className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-colors"
+                className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition-colors"
               >
                 Mengerti
               </button>

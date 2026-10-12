@@ -13,6 +13,14 @@
   --border: #e5e7eb;
 }
 
+.dark {
+  --background: #0b0f17;
+  --foreground: #f8fafc;
+  --primary: #10b981;
+  --primary-hover: #059669;
+  --border: #1e293b;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

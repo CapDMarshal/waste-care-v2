@@ -76,7 +76,7 @@ export const BottomNavigation: React.FC = () => {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+    <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#0B0F17] border-t border-gray-200 dark:border-slate-800 z-50 transition-colors duration-200">
       <div className="flex items-center justify-around py-2 px-1 sm:px-4 pb-safe">
         {navItems.map((item) => {
           const isActive = pathname === item.href || (item.href === '/dashboard' && pathname === '/');
@@ -86,14 +86,14 @@ export const BottomNavigation: React.FC = () => {
               key={item.href}
               href={item.href}
               className={`flex flex-col items-center justify-center py-2 px-1.5 sm:px-3 rounded-lg transition-colors duration-200 flex-1 max-w-[80px] sm:max-w-none ${
-                isActive ? 'bg-emerald-50' : 'hover:bg-gray-50'
+                isActive ? 'bg-emerald-50 dark:bg-emerald-950/40' : 'hover:bg-gray-50 dark:hover:bg-slate-900/60'
               }`}
             >
               <div className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center">
                 {item.icon(isActive)}
               </div>
               <span className={`text-[10px] sm:text-xs mt-1 truncate max-w-full ${
-                isActive ? 'text-emerald-500 font-medium' : 'text-slate-400'
+                isActive ? 'text-emerald-500 dark:text-emerald-400 font-medium' : 'text-slate-400 dark:text-slate-500'
               }`}>
                 {item.label}
               </span>

@@ -22,9 +22,9 @@ export const GAMIFICATION_TIERS: BadgeTier[] = [
     minExp: 0,
     icon: 'sprout',
     gradient: 'from-emerald-500 to-green-600',
-    border: 'border-emerald-200',
-    text: 'text-emerald-700',
-    bgLight: 'bg-emerald-50',
+    border: 'border-emerald-200 dark:border-emerald-800',
+    text: 'text-emerald-700 dark:text-emerald-300',
+    bgLight: 'bg-emerald-50 dark:bg-emerald-950/60',
     description: 'Langkah awal kepedulian warga Sleman dalam pelaporan sampah liar.',
     philosophy: 'Melambangkan benih kesadaran ekologis yang mulai berakar di bumi Sleman.'
   },
@@ -36,9 +36,9 @@ export const GAMIFICATION_TIERS: BadgeTier[] = [
     minExp: 200,
     icon: 'shield',
     gradient: 'from-sky-500 to-blue-600',
-    border: 'border-blue-200',
-    text: 'text-blue-700',
-    bgLight: 'bg-blue-50',
+    border: 'border-blue-200 dark:border-blue-800',
+    text: 'text-blue-700 dark:text-blue-300',
+    bgLight: 'bg-blue-50 dark:bg-blue-950/60',
     description: 'Konsistensi tinggi dalam aksi nyata pelaporan tervalidasi dan keikutsertaan aksi bersih.',
     philosophy: 'Simbol perisai pertahanan alam Sleman yang lestari dan berkelanjutan.'
   },
@@ -50,9 +50,9 @@ export const GAMIFICATION_TIERS: BadgeTier[] = [
     minExp: 500,
     icon: 'crown',
     gradient: 'from-amber-400 to-yellow-600',
-    border: 'border-amber-200',
-    text: 'text-amber-800',
-    bgLight: 'bg-amber-50',
+    border: 'border-amber-200 dark:border-amber-800',
+    text: 'text-amber-800 dark:text-amber-300',
+    bgLight: 'bg-amber-50 dark:bg-amber-950/60',
     description: 'Dedikasi luar biasa mewujudkan Sleman Sembada bersih dan bebas sampah liar.',
     philosophy: 'Puncak kehormatan sipil bagi pahlawan lingkungan penegak adipura sejati.'
   }
