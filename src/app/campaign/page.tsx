@@ -2,7 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { QrCode } from 'lucide-react';
 import { BottomNavigation } from '@/components';
 import { useCampaigns } from '@/hooks/useCampaigns';
 import type { Campaign } from '@/types/campaign.types';
@@ -92,9 +94,19 @@ export default function CampaignPage() {
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="px-4 py-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">Campaign Bersih-Bersih</h1>
-          <p className="text-gray-600 text-sm">Bergabunglah dalam aksi gotong royong membersihkan lingkungan</p>
+        <div className="px-4 py-6 flex items-center justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">Campaign Bersih-Bersih</h1>
+            <p className="text-gray-600 text-sm">Bergabunglah dalam aksi gotong royong membersihkan lingkungan</p>
+          </div>
+          <Link
+            href="/scan-qr"
+            className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition-all hover:scale-105 active:scale-95"
+            title="Scan QR Presensi"
+          >
+            <QrCode size={16} />
+            <span className="hidden sm:inline">Scan QR Presensi</span>
+          </Link>
         </div>
 
         <div className="px-4 pb-3">
