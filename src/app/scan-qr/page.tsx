@@ -7,7 +7,6 @@ import { Html5Qrcode } from 'html5-qrcode';
 import { 
   ArrowLeft, 
   Camera, 
-  MapPin, 
   AlertTriangle, 
   CheckCircle2, 
   XCircle, 
@@ -24,12 +23,18 @@ import { submitAttendanceCheckIn, AttendanceCheckInResult } from './actions';
 
 type GPSStatus = 'requesting' | 'ready' | 'denied' | 'error';
 
+interface Coords {
+  lat: number;
+  lng: number;
+  accuracy: number;
+}
+
 export default function ScanQrPage() {
   const router = useRouter();
 
   // GPS State
   const [gpsStatus, setGpsStatus] = useState<GPSStatus>('requesting');
-  const [userCoords, setUserCoords] = useState<{ lat: number; lng: number; accuracy: number } | null>(null);
+  const [userCoords, setUserCoords] = useState<Coords | null>(null);
   const [gpsError, setGpsError] = useState<string | null>(null);
 
   // Scanner State
@@ -43,10 +48,13 @@ export default function ScanQrPage() {
   const [checkInResult, setCheckInResult] = useState<AttendanceCheckInResult | null>(null);
   const [showResultModal, setShowResultModal] = useState<boolean>(false);
 
+  // Stable Refs to prevent camera restarts on state changes
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const userCoordsRef = useRef<Coords | null>(null);
+  const isProcessingRef = useRef<boolean>(false);
 
-  // 1. Get GPS Location
+  // 1. Get GPS Location (Updates state for UI, and ref for stable scanner access)
   const requestLocation = useCallback(() => {
     setGpsStatus('requesting');
     setGpsError(null);
@@ -59,11 +67,14 @@ export default function ScanQrPage() {
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setUserCoords({
+        const coords: Coords = {
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
           accuracy: Math.round(pos.coords.accuracy),
-        });
+        };
+        // Update both Ref and State
+        userCoordsRef.current = coords;
+        setUserCoords(coords);
         setGpsStatus('ready');
       },
       (err) => {
@@ -91,24 +102,17 @@ export default function ScanQrPage() {
   // 2. Submit Token with GPS coordinates
   const handleCheckInToken = useCallback(
     async (token: string) => {
-      if (isProcessing) return;
+      // Guard against double submission
+      if (isProcessingRef.current) return;
 
-      if (!userCoords) {
+      const currentCoords = userCoordsRef.current;
+      if (!currentCoords) {
         alert('Menunggu koordinat GPS perangkat. Pastikan GPS aktif dengan akurasi tinggi.');
         return;
       }
 
+      isProcessingRef.current = true;
       setIsProcessing(true);
-
-      // Stop camera during processing
-      if (scannerRef.current && scannerRef.current.isScanning) {
-        try {
-          await scannerRef.current.stop();
-          setIsScannerRunning(false);
-        } catch (e) {
-          console.warn('Error pausing scanner:', e);
-        }
-      }
 
       // Haptic feedback
       if (typeof window !== 'undefined' && 'vibrate' in navigator) {
@@ -117,21 +121,37 @@ export default function ScanQrPage() {
         } catch {}
       }
 
-      const result = await submitAttendanceCheckIn({
-        token,
-        userLat: userCoords.lat,
-        userLng: userCoords.lng,
-        gpsAccuracy: userCoords.accuracy,
-      });
+      try {
+        const result = await submitAttendanceCheckIn({
+          token,
+          userLat: currentCoords.lat,
+          userLng: currentCoords.lng,
+          gpsAccuracy: currentCoords.accuracy,
+        });
 
-      setCheckInResult(result);
-      setShowResultModal(true);
-      setIsProcessing(false);
+        setCheckInResult(result);
+        setShowResultModal(true);
+      } catch (err) {
+        setCheckInResult({
+          success: false,
+          code: 'UNEXPECTED_ERROR',
+          message: 'Terjadi kendala saat memproses presensi: ' + (err instanceof Error ? err.message : String(err)),
+        });
+        setShowResultModal(true);
+      } finally {
+        setIsProcessing(false);
+      }
     },
-    [isProcessing, userCoords]
+    []
   );
 
-  // 3. Initialize Camera Scanner
+  // Stable reference to handleCheckInToken for the scanner callback
+  const handleCheckInTokenRef = useRef(handleCheckInToken);
+  useEffect(() => {
+    handleCheckInTokenRef.current = handleCheckInToken;
+  }, [handleCheckInToken]);
+
+  // 3. Initialize Camera Scanner (Completely decoupled from GPS state!)
   const startScanner = useCallback(async () => {
     setCameraError(null);
 
@@ -147,7 +167,7 @@ export default function ScanQrPage() {
 
       const config = {
         fps: 12,
-        qrbox: { width: 260, height: 260 },
+        qrbox: { width: 250, height: 250 },
         aspectRatio: 1.0,
       };
 
@@ -155,7 +175,7 @@ export default function ScanQrPage() {
         { facingMode: 'environment' },
         config,
         (decodedText) => {
-          handleCheckInToken(decodedText);
+          handleCheckInTokenRef.current(decodedText);
         },
         () => {
           // ignore scan frame misses
@@ -178,19 +198,7 @@ export default function ScanQrPage() {
       );
       setIsScannerRunning(false);
     }
-  }, [handleCheckInToken]);
-
-  // Stop scanner
-  const stopScanner = useCallback(async () => {
-    if (scannerRef.current && scannerRef.current.isScanning) {
-      try {
-        await scannerRef.current.stop();
-        setIsScannerRunning(false);
-      } catch (err) {
-        console.warn('[Scanner stop error]:', err);
-      }
-    }
-  }, []);
+  }, []); // ZERO DEPENDENCIES! Scanner will never restart due to GPS or state updates.
 
   // Toggle Torch
   const toggleTorch = async () => {
@@ -218,7 +226,7 @@ export default function ScanQrPage() {
     try {
       setIsProcessing(true);
       const decodedText = await scannerRef.current.scanFile(file, true);
-      await handleCheckInToken(decodedText);
+      await handleCheckInTokenRef.current(decodedText);
     } catch (err) {
       alert('Tidak menemukan kode QR yang valid pada foto tersebut. Silakan coba lagi.');
     } finally {
@@ -227,7 +235,7 @@ export default function ScanQrPage() {
     }
   };
 
-  // Start scanner on mount
+  // Start scanner once on component mount
   useEffect(() => {
     startScanner();
 
@@ -236,9 +244,11 @@ export default function ScanQrPage() {
         if (scannerRef.current.isScanning) {
           scannerRef.current.stop().catch(() => {}).finally(() => {
             scannerRef.current?.clear();
+            scannerRef.current = null;
           });
         } else {
           scannerRef.current.clear();
+          scannerRef.current = null;
         }
       }
     };
@@ -248,12 +258,36 @@ export default function ScanQrPage() {
   const handleResetScan = () => {
     setShowResultModal(false);
     setCheckInResult(null);
-    startScanner();
+    isProcessingRef.current = false;
+    setIsProcessing(false);
+    // If scanner was stopped for any reason, re-ensure it's running
+    if (scannerRef.current && !scannerRef.current.isScanning) {
+      startScanner();
+    }
   };
 
   return (
     <div className="min-h-screen bg-slate-950 text-white pb-24 relative flex flex-col justify-between select-none">
       
+      {/* Inline styles to ensure html5-qrcode video element fills viewport smoothly */}
+      <style jsx global>{`
+        #qr-reader-viewport {
+          width: 100% !important;
+          height: 100% !important;
+          position: relative !important;
+          background: #000 !important;
+        }
+        #qr-reader-viewport video {
+          width: 100% !important;
+          height: 100% !important;
+          object-fit: cover !important;
+          border-radius: 1.5rem !important;
+        }
+        #qr-reader-viewport img {
+          display: none !important;
+        }
+      `}</style>
+
       {/* Top Header */}
       <header className="px-4 pt-5 pb-3 flex items-center justify-between z-20">
         <button
@@ -356,7 +390,7 @@ export default function ScanQrPage() {
           {/* Viewfinder Overlay with Animated Laser */}
           {isScannerRunning && !isProcessing && (
             <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-              {/* Outer dimmed border */}
+              {/* Outer border */}
               <div className="relative w-64 h-64 border-2 border-emerald-400/80 rounded-2xl">
                 {/* 4 Corner brackets */}
                 <div className="absolute -top-1 -left-1 w-6 h-6 border-t-4 border-l-4 border-emerald-400 rounded-tl-lg" />
@@ -390,7 +424,7 @@ export default function ScanQrPage() {
               <p className="text-xs text-rose-300 leading-relaxed">{cameraError}</p>
               <button
                 onClick={startScanner}
-                className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-md transition"
+                className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-md transition cursor-pointer"
               >
                 Coba Buka Kamera Lagi
               </button>
