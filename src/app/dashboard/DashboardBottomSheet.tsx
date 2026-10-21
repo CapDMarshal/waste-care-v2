@@ -1,6 +1,12 @@
+'use client';
+
+import React from 'react';
 import { BottomSheet } from '@/components';
 import type { WasteMarker } from '.';
+import type { DashboardFilter, DashboardSort } from './useDashboard';
+import type { GeocodingSuggestion } from '@/lib/maptilerGeocoding';
 import { useRouter } from 'next/navigation';
+import NearbyReportsList from './NearbyReportsList';
 
 interface DashboardBottomSheetProps {
   showDetails: boolean;
@@ -8,10 +14,21 @@ interface DashboardBottomSheetProps {
   searchQuery: string;
   selectedMarker: WasteMarker | null | undefined;
   onSearchChange: (query: string) => void;
-  onSearchClick: () => void;
   onClose: () => void;
   showRoute?: boolean;
   onToggleRoute?: () => void;
+  markers: WasteMarker[];
+  loading?: boolean;
+  geocodingSuggestions: GeocodingSuggestion[];
+  isSearchingGeocode: boolean;
+  activeRegionName: string | null;
+  onSelectPlace: (suggestion: GeocodingSuggestion) => void;
+  onResetToMyLocation: () => void;
+  activeFilter: DashboardFilter;
+  onFilterChange: (filter: DashboardFilter) => void;
+  sortBy: DashboardSort;
+  onSortChange: (sort: DashboardSort) => void;
+  onSelectMarker: (markerId: string) => void;
 }
 
 export default function DashboardBottomSheet({
@@ -20,10 +37,21 @@ export default function DashboardBottomSheet({
   searchQuery,
   selectedMarker,
   onSearchChange,
-  onSearchClick,
   onClose,
   showRoute = false,
   onToggleRoute,
+  markers,
+  loading = false,
+  geocodingSuggestions,
+  isSearchingGeocode,
+  activeRegionName,
+  onSelectPlace,
+  onResetToMyLocation,
+  activeFilter,
+  onFilterChange,
+  sortBy,
+  onSortChange,
+  onSelectMarker,
 }: DashboardBottomSheetProps) {
   const router = useRouter();
 
@@ -35,7 +63,6 @@ export default function DashboardBottomSheet({
   const handleRevalidateClick = () => {
     if (!selectedMarker) return;
     
-    // Navigate to revalidation page with report data
     const params = new URLSearchParams({
       reportId: selectedMarker.id.toString(),
       lat: selectedMarker.coordinates[1].toString(),
@@ -48,7 +75,6 @@ export default function DashboardBottomSheet({
   const handleCreateCampaignClick = () => {
     if (!selectedMarker) return;
     
-    // Navigate to campaign creation page with report data
     const params = new URLSearchParams({
       reportId: selectedMarker.id.toString(),
       lat: selectedMarker.coordinates[1].toString(),
@@ -64,12 +90,9 @@ export default function DashboardBottomSheet({
       onClose={onClose}
       showWelcome={!showDetails}
       userName={userName}
-      searchQuery={searchQuery}
-      onSearchChange={onSearchChange}
-      onSearchClick={onSearchClick}
-      title={selectedMarker ? `${selectedMarker.title} - ${selectedMarker.distance}` : ''}
-      description={selectedMarker?.notes || 'Detail laporan sampah pada titik ini'}
-      images={selectedMarker?.imageUrls || ['/images/template-image.png']}
+      title={selectedMarker ? `${selectedMarker.title} • ${selectedMarker.distance}` : ''}
+      description={selectedMarker?.notes || (selectedMarker ? `Lokasi: ${selectedMarker.location}` : 'Detail laporan sampah pada titik ini')}
+      images={selectedMarker?.imageUrls && selectedMarker.imageUrls.length > 0 ? selectedMarker.imageUrls : ['/images/template-image.png']}
       wasteType={selectedMarker?.wasteType || ''}
       amount={selectedMarker?.amount || ''}
       category={selectedMarker?.category || ''}
@@ -86,6 +109,25 @@ export default function DashboardBottomSheet({
       showRouteButton={showDetails && !!selectedMarker}
       showRoute={showRoute}
       onToggleRoute={onToggleRoute}
-    />
+    >
+      <NearbyReportsList
+        userName={userName}
+        markers={markers}
+        loading={loading}
+        searchQuery={searchQuery}
+        onSearchChange={onSearchChange}
+        geocodingSuggestions={geocodingSuggestions}
+        isSearchingGeocode={isSearchingGeocode}
+        activeRegionName={activeRegionName}
+        onSelectPlace={onSelectPlace}
+        onResetToMyLocation={onResetToMyLocation}
+        activeFilter={activeFilter}
+        onFilterChange={onFilterChange}
+        sortBy={sortBy}
+        onSortChange={onSortChange}
+        onSelectMarker={onSelectMarker}
+        selectedMarkerId={selectedMarker?.id}
+      />
+    </BottomSheet>
   );
 }

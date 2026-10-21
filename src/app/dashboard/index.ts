@@ -8,9 +8,13 @@ export interface WasteMarker {
   amount: string;
   category: string;
   distance: string;
+  distanceKm?: number;
   imageUrls: string[];
   notes: string | null;
   createdAt: string;
   hasCampaign: boolean;
   campaignId?: number;
+  rawWasteType?: string;
+  rawVolume?: string;
+  rawCategory?: string;
 }

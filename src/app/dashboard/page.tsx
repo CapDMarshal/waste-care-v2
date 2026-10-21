@@ -14,16 +14,25 @@ export default function DashboardPage() {
     userLocation,
     isRequestingLocation,
     requestLocation,
-    wasteMarkers,
+    flyToCoords,
+    filteredMarkers,
     loading,
     error,
     setError,
     searchQuery,
     setSearchQuery,
-    handleSearch,
+    geocodingSuggestions,
+    isSearchingGeocode,
+    activeRegionName,
+    handleSelectPlace,
+    handleResetToMyLocation,
+    activeFilter,
+    setActiveFilter,
+    sortBy,
+    setSortBy,
     showDetails,
     selectedMarker,
-    handleMarkerClick,
+    handleSelectReport,
     handleCloseDetails,
     showRoute,
     routeStart,
@@ -46,28 +55,41 @@ export default function DashboardPage() {
       <div className="relative">
         <MapView
           userLocation={userLocation}
-          markers={wasteMarkers}
+          markers={filteredMarkers}
           showDetails={showDetails}
-          onMarkerClick={handleMarkerClick}
+          onMarkerClick={handleSelectReport}
           onCloseDetails={handleCloseDetails}
           showRoute={showRoute}
           routeStart={routeStart}
           routeEnd={routeEnd}
           isRequestingLocation={isRequestingLocation}
           onRequestLocation={requestLocation}
+          flyToCoords={flyToCoords}
         />
       </div>
 
+      {/* Interactive Bottom Sheet (Explore List or Report Detail) */}
       <DashboardBottomSheet
         showDetails={showDetails}
         userName={displayName}
         searchQuery={searchQuery}
         selectedMarker={selectedMarker}
         onSearchChange={setSearchQuery}
-        onSearchClick={handleSearch}
         onClose={handleCloseDetails}
         showRoute={showRoute}
         onToggleRoute={toggleRoute}
+        markers={filteredMarkers}
+        loading={loading}
+        geocodingSuggestions={geocodingSuggestions}
+        isSearchingGeocode={isSearchingGeocode}
+        activeRegionName={activeRegionName}
+        onSelectPlace={handleSelectPlace}
+        onResetToMyLocation={handleResetToMyLocation}
+        activeFilter={activeFilter}
+        onFilterChange={setActiveFilter}
+        sortBy={sortBy}
+        onSortChange={setSortBy}
+        onSelectMarker={handleSelectReport}
       />
 
       <BottomNavigation />

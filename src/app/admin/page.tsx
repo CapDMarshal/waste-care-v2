@@ -12,6 +12,7 @@ import {
   ArrowUpRight,
   ShieldAlert,
   Flag,
+  Flame,
   FileCheck2,
   Calendar
 } from 'lucide-react'
@@ -63,11 +64,18 @@ export default async function AdminDashboardPage() {
 
           <div className="flex flex-wrap items-center gap-3 shrink-0">
             <Link
+              href="/admin/peta"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-sm font-bold shadow-lg shadow-black/10 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <Flame size={16} className="text-red-700" />
+              <span>Peta Hotspot</span>
+            </Link>
+            <Link
               href="/admin/laporan"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-[#059669] hover:bg-[#F8FAFC] text-sm font-bold shadow-lg shadow-black/10 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-[#059669] hover:bg-[#F8FAFC] text-sm font-bold shadow-lg shadow-black/10 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               <FileCheck2 size={16} />
-              <span>Validasi Laporan ({stats.pending_count})</span>
+              <span>Validasi ({stats.pending_count})</span>
             </Link>
             <Link
               href="/admin/campaign/buat"

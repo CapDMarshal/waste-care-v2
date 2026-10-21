@@ -4,12 +4,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Map, MapStyle, Marker } from '@maptiler/sdk';
 // @ts-ignore - CSS import
 import '@maptiler/sdk/dist/maptiler-sdk.css';
+import { HEATMAP_LAYER_PAINT } from '@/lib/spatialHeatmap';
 
 interface MapTilerMapProps {
   apiKey?: string;
   className?: string;
   center?: [number, number];
   zoom?: number;
+  mapStyle?: 'hybrid' | 'streets';
   markers?: Array<{
     id: string;
     coordinates: [number, number];
@@ -23,6 +25,8 @@ interface MapTilerMapProps {
   routeEnd?: [number, number] | null;
   showUserLocation?: boolean;
   userLocation?: [number, number] | null;
+  showHeatmap?: boolean;
+  heatmapData?: GeoJSON.FeatureCollection<GeoJSON.Point> | null;
   onMapReady?: (map: Map) => void;
   onMapError?: (error: Error) => void;
 }
@@ -32,6 +36,7 @@ const MapTilerMapComponent: React.FC<MapTilerMapProps> = ({
   className = 'w-full h-full',
   center = [110.3695, -7.7956],
   zoom = 12,
+  mapStyle = 'hybrid',
   markers = [],
   onMarkerClick,
   showRoute = false,
@@ -39,6 +44,8 @@ const MapTilerMapComponent: React.FC<MapTilerMapProps> = ({
   routeEnd = null,
   showUserLocation = false,
   userLocation = null,
+  showHeatmap = false,
+  heatmapData = null,
   onMapReady,
   onMapError,
 }) => {
@@ -52,6 +59,8 @@ const MapTilerMapComponent: React.FC<MapTilerMapProps> = ({
   const routeLayerId = 'route';
   const routeOutlineLayerId = 'route-outline';
   const routeSourceId = 'route';
+  const heatmapSourceId = 'waste-heatmap-source';
+  const heatmapLayerId = 'waste-heatmap-layer';
 
   const [isOnline, setIsOnline] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
@@ -98,9 +107,10 @@ const MapTilerMapComponent: React.FC<MapTilerMapProps> = ({
       console.log('[map] init:start', { center, zoom });
 
       // Initialize the map
+      const initialStyle = mapStyle === 'streets' ? MapStyle.STREETS : MapStyle.HYBRID;
       const mapInstance = new Map({
         container: mapContainer.current,
-        style: MapStyle.HYBRID,
+        style: initialStyle,
         center: center,
         zoom: zoom,
         apiKey: apiKey,
@@ -198,12 +208,30 @@ const MapTilerMapComponent: React.FC<MapTilerMapProps> = ({
     };
   }, [isLoading]);
 
+  // Update map style when mapStyle prop changes
+  useEffect(() => {
+    if (!map.current || isLoading) return;
+
+    try {
+      const targetStyle = mapStyle === 'streets' ? MapStyle.STREETS : MapStyle.HYBRID;
+      map.current.setStyle(targetStyle);
+    } catch (err) {
+      console.warn('[map] setStyle error', err);
+    }
+  }, [mapStyle, isLoading]);
+
   // Update map center when center prop changes
   useEffect(() => {
     if (!map.current || isLoading) return;
 
     try {
-      map.current.setCenter(center);
+      const currentCenter = map.current.getCenter();
+      // Only set center if distance is significant to avoid overriding user interaction or flyTo
+      const diffLng = Math.abs(currentCenter.lng - center[0]);
+      const diffLat = Math.abs(currentCenter.lat - center[1]);
+      if (diffLng > 0.001 || diffLat > 0.001) {
+        map.current.setCenter(center);
+      }
     } catch (error) {
     }
   }, [center, isLoading]);
@@ -240,6 +268,10 @@ const MapTilerMapComponent: React.FC<MapTilerMapProps> = ({
             if (markerData.type === 'waste') {
               el.style.width = '50px';
               el.style.height = '50px';
+              // Hide marker element if heatmap mode is active to prevent visual clutter
+              if (showHeatmap) {
+                el.style.display = 'none';
+              }
               // Create waste marker with trash icon
               el.innerHTML = `
                 <img 
@@ -287,7 +319,7 @@ const MapTilerMapComponent: React.FC<MapTilerMapProps> = ({
       });
     } catch (error) {
     }
-  }, [markers, isLoading]);
+  }, [markers, isLoading, showHeatmap]);
 
   // Handle user location display
   useEffect(() => {
@@ -549,6 +581,56 @@ const MapTilerMapComponent: React.FC<MapTilerMapProps> = ({
     fetchRoute();
   }, [showRoute, routeStart, routeEnd]);
 
+  // Handle WebGL Heatmap Layer (Fitur 3: Spatial Density Heatmap Admin)
+  useEffect(() => {
+    if (!map.current || isLoading) return;
+
+    const source = map.current.getSource(heatmapSourceId) as any;
+
+    if (showHeatmap && heatmapData) {
+      if (source) {
+        // Update existing GeoJSON source
+        try {
+          source.setData(heatmapData);
+        } catch (err) {
+          console.warn('[heatmap] update data error', err);
+        }
+      } else {
+        // Add new GeoJSON source and Heatmap layer
+        try {
+          map.current.addSource(heatmapSourceId, {
+            type: 'geojson',
+            data: heatmapData,
+          });
+
+          map.current.addLayer({
+            id: heatmapLayerId,
+            type: 'heatmap',
+            source: heatmapSourceId,
+            maxzoom: 17,
+            paint: HEATMAP_LAYER_PAINT as any,
+          });
+        } catch (err) {
+          console.warn('[heatmap] add layer error', err);
+        }
+      }
+
+      // Ensure layer visibility is set to visible
+      if (map.current.getLayer(heatmapLayerId)) {
+        try {
+          map.current.setLayoutProperty(heatmapLayerId, 'visibility', 'visible');
+        } catch {}
+      }
+    } else {
+      // Hide or remove heatmap layer if turned off
+      if (map.current.getLayer(heatmapLayerId)) {
+        try {
+          map.current.setLayoutProperty(heatmapLayerId, 'visibility', 'none');
+        } catch {}
+      }
+    }
+  }, [showHeatmap, heatmapData, isLoading]);
+
   return (
     <div className={className} style={{ position: 'relative' }}>
       {/* Loading Overlay */}
@@ -611,7 +693,10 @@ const arePropsEqual = (prevProps: MapTilerMapProps, nextProps: MapTilerMapProps)
     prevProps.apiKey !== nextProps.apiKey ||
     prevProps.className !== nextProps.className ||
     prevProps.zoom !== nextProps.zoom ||
-    prevProps.showRoute !== nextProps.showRoute
+    prevProps.mapStyle !== nextProps.mapStyle ||
+    prevProps.showRoute !== nextProps.showRoute ||
+    prevProps.showHeatmap !== nextProps.showHeatmap ||
+    prevProps.heatmapData !== nextProps.heatmapData
   ) {
     return false;
   }

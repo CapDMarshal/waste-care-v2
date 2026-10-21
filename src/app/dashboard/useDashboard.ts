@@ -11,7 +11,28 @@ import {
 } from '@/lib/nearbyReportsService';
 import { getCampaignDataByReportIds } from '@/lib/campaignService';
 import { useUserLocation } from './useUserLocation';
+import { searchSlemanPlaces, GeocodingSuggestion } from '@/lib/maptilerGeocoding';
 import { WasteMarker } from '.';
+
+export type DashboardFilter = 
+  | 'all'
+  | 'campaign'
+  | 'organik'
+  | 'anorganik'
+  | 'campuran'
+  | 'pinggir_jalan'
+  | 'sungai'
+  | 'area_publik'
+  | 'tanah_kosong';
+
+export type DashboardSort = 'distance' | 'volume' | 'newest';
+
+const VOLUME_RANK: Record<string, number> = {
+  lebih_dari_1_truk_besar: 4,
+  '1_truk_besar': 3,
+  '1_truk_kecil': 2,
+  '1_pickup': 1,
+};
 
 export function useDashboard() {
   const pathname = usePathname();
@@ -23,16 +44,25 @@ export function useDashboard() {
   const [showRoute, setShowRoute] = useState(false);
   const [savedRouteEnd, setSavedRouteEnd] = useState<[number, number] | null>(null);
 
+  // Filter & Sorting state
+  const [activeFilter, setActiveFilter] = useState<DashboardFilter>('all');
+  const [sortBy, setSortBy] = useState<DashboardSort>('distance');
+
+  // Geocoding & Map pan state
+  const [flyToCoords, setFlyToCoords] = useState<[number, number] | null>(null);
+  const [geocodingSuggestions, setGeocodingSuggestions] = useState<GeocodingSuggestion[]>([]);
+  const [isSearchingGeocode, setIsSearchingGeocode] = useState(false);
+  const [activeRegionName, setActiveRegionName] = useState<string | null>(null);
+
   // Get display name
   const getDisplayName = () => {
     if (user?.user_metadata?.full_name) {
       return user.user_metadata.full_name;
     }
     if (user?.email) {
-      // Get first part of email before @
       return user.email.split('@')[0];
     }
-    return 'User';  
+    return 'Warga Sleman';  
   };
 
   const displayName = getDisplayName();
@@ -51,7 +81,6 @@ export function useDashboard() {
     if (reports.length > 0) {
       const reportIds = reports.map(r => r.id);
       
-      // Single API call to get both hasCampaign and campaign details
       getCampaignDataByReportIds(reportIds).then(({ campaignMap, campaignDetailsMap }) => {
         setCampaignMap(campaignMap);
         setCampaignDetailsMap(campaignDetailsMap);
@@ -67,7 +96,7 @@ export function useDashboard() {
     handleCloseDetails,
   } = useMarkerSelection();
 
-  // Convert reports to markers format
+  // Convert raw reports to markers format
   const wasteMarkers = useMemo<WasteMarker[]>(() => {
     return reports.map((report) => {
       const campaignDetails = campaignDetailsMap.get(report.id);
@@ -81,30 +110,123 @@ export function useDashboard() {
         amount: formatWasteVolume(report.waste_volume),
         category: formatLocationCategory(report.location_category),
         distance: formatDistance(report.distance_km),
+        distanceKm: report.distance_km,
         imageUrls: report.image_urls,
         notes: report.notes,
         createdAt: report.created_at,
         hasCampaign: campaignMap.get(report.id) || false,
         campaignId: campaignDetails?.id,
+        rawWasteType: report.waste_type,
+        rawVolume: report.waste_volume,
+        rawCategory: report.location_category,
       };
     });
   }, [reports, campaignMap, campaignDetailsMap]);
 
-  // Search handler
-  const handleSearch = useCallback(() => {
-    // If user location is available, refetch with current search parameters
-    if (userLocation) {
-      const [lon, lat] = userLocation;
-      fetchNearbyReports(lat, lon);
+  // Debounced geocoding search for regions/places in Sleman
+  useEffect(() => {
+    const query = searchQuery.trim();
+    if (query.length < 2) {
+      setGeocodingSuggestions([]);
+      setIsSearchingGeocode(false);
+      return;
     }
-  }, [userLocation, fetchNearbyReports]);
+
+    setIsSearchingGeocode(true);
+    const timer = setTimeout(async () => {
+      try {
+        const results = await searchSlemanPlaces(query);
+        setGeocodingSuggestions(results);
+      } catch (err) {
+        console.warn('Geocoding search failed:', err);
+      } finally {
+        setIsSearchingGeocode(false);
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Handler for selecting a geocoded Sleman region / place
+  const handleSelectPlace = useCallback((suggestion: GeocodingSuggestion) => {
+    setGeocodingSuggestions([]);
+    setActiveRegionName(suggestion.text);
+    setSearchQuery(suggestion.text);
+    setFlyToCoords(suggestion.center);
+
+    // Fetch reports around newly chosen center (lat, lng)
+    fetchNearbyReports(suggestion.center[1], suggestion.center[0]);
+  }, [fetchNearbyReports]);
+
+  // Reset region filter to current GPS
+  const handleResetToMyLocation = useCallback(() => {
+    setActiveRegionName(null);
+    setSearchQuery('');
+    setGeocodingSuggestions([]);
+    if (userLocation) {
+      setFlyToCoords(userLocation);
+      fetchNearbyReports(userLocation[1], userLocation[0]);
+    } else {
+      requestLocation();
+    }
+  }, [userLocation, fetchNearbyReports, requestLocation]);
+
+  // Filtered and sorted markers
+  const filteredMarkers = useMemo<WasteMarker[]>(() => {
+    let result = [...wasteMarkers];
+
+    // 1. Text filter (if user typed keywords matching notes or categories)
+    if (searchQuery.trim().length > 0 && !activeRegionName) {
+      const q = searchQuery.toLowerCase().trim();
+      result = result.filter((m) =>
+        (m.notes && m.notes.toLowerCase().includes(q)) ||
+        m.wasteType.toLowerCase().includes(q) ||
+        m.category.toLowerCase().includes(q) ||
+        m.location.toLowerCase().includes(q) ||
+        m.amount.toLowerCase().includes(q)
+      );
+    }
+
+    // 2. Chip filters
+    if (activeFilter === 'campaign') {
+      result = result.filter((m) => m.hasCampaign);
+    } else if (['organik', 'anorganik', 'campuran'].includes(activeFilter)) {
+      result = result.filter((m) => m.rawWasteType === activeFilter);
+    } else if (['pinggir_jalan', 'sungai', 'area_publik', 'tanah_kosong'].includes(activeFilter)) {
+      result = result.filter((m) => m.rawCategory === activeFilter);
+    }
+
+    // 3. Sorting
+    if (sortBy === 'distance') {
+      result.sort((a, b) => (a.distanceKm ?? 9999) - (b.distanceKm ?? 9999));
+    } else if (sortBy === 'volume') {
+      result.sort((a, b) => {
+        const rankA = VOLUME_RANK[a.rawVolume ?? ''] ?? 0;
+        const rankB = VOLUME_RANK[b.rawVolume ?? ''] ?? 0;
+        return rankB - rankA;
+      });
+    } else if (sortBy === 'newest') {
+      result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+
+    return result;
+  }, [wasteMarkers, searchQuery, activeRegionName, activeFilter, sortBy]);
+
+  // Selection handler that also triggers smooth pan / flyTo
+  const handleSelectReport = useCallback((markerId: string) => {
+    const marker = wasteMarkers.find((m) => m.id === markerId);
+    if (marker) {
+      setFlyToCoords(marker.coordinates);
+    }
+    handleMarkerClick(markerId);
+  }, [wasteMarkers, handleMarkerClick]);
 
   useEffect(() => {
-    if (pathname === '/dashboard' && userLocation) {
+    if (pathname === '/dashboard' && userLocation && !activeRegionName) {
       const [lon, lat] = userLocation;
       fetchNearbyReports(lat, lon);
     }
-  }, [pathname, userLocation, fetchNearbyReports]);
+  }, [pathname, userLocation, activeRegionName, fetchNearbyReports]);
 
   // Get selected marker
   const selectedMarker = selectedMarkerId 
@@ -114,22 +236,18 @@ export function useDashboard() {
   // Calculate route coordinates
   const routeStart = userLocation;
   
-  // Save route end when a marker is selected and route is shown
   useEffect(() => {
     if (selectedMarker && showRoute) {
       setSavedRouteEnd(selectedMarker.coordinates);
     }
   }, [selectedMarker, showRoute]);
 
-  // Use saved route end if available and route is shown, even if marker is deselected
   const routeEnd = showRoute 
     ? (selectedMarker?.coordinates || savedRouteEnd)
     : null;
 
-  // Toggle route display
   const toggleRoute = useCallback(() => {
     setShowRoute(prev => {
-      // If turning off the route, clear saved route end
       if (prev) {
         setSavedRouteEnd(null);
       }
@@ -145,23 +263,36 @@ export function useDashboard() {
     userLocation,
     isRequestingLocation,
     requestLocation,
+    flyToCoords,
+    setFlyToCoords,
     
     // Reports data
     wasteMarkers,
+    filteredMarkers,
     loading,
     error,
     setError,
     
-    // Search
+    // Search & Geocoding
     searchQuery,
     setSearchQuery,
-    handleSearch,
+    geocodingSuggestions,
+    isSearchingGeocode,
+    activeRegionName,
+    handleSelectPlace,
+    handleResetToMyLocation,
     
+    // Filters & Sorting
+    activeFilter,
+    setActiveFilter,
+    sortBy,
+    setSortBy,
+
     // Marker selection
     selectedMarkerId,
     showDetails,
     selectedMarker,
-    handleMarkerClick,
+    handleSelectReport,
     handleCloseDetails,
 
     // Routing

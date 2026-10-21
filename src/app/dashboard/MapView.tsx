@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { Map } from '@maptiler/sdk';
 import CloseButton from './CloseButton';
 import LocationPermissionButton from './LocationPermissionButton';
 import type { WasteMarker } from '.';
@@ -15,6 +16,7 @@ interface MapViewProps {
   routeEnd?: [number, number] | null;
   isRequestingLocation?: boolean;
   onRequestLocation?: () => void;
+  flyToCoords?: [number, number] | null;
 }
 
 export default function MapView({
@@ -28,10 +30,12 @@ export default function MapView({
   routeEnd = null,
   isRequestingLocation = false,
   onRequestLocation,
+  flyToCoords = null,
 }: MapViewProps) {
   const [mapRenderKey, setMapRenderKey] = useState(0);
   const [mapReady, setMapReady] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const mapInstanceRef = useRef<Map | null>(null);
 
   useEffect(() => {
     const onPageShow = (event: PageTransitionEvent) => {
@@ -82,7 +86,8 @@ export default function MapView({
     };
   }, [mapReady, retryCount]);
 
-  const handleMapReady = useCallback(() => {
+  const handleMapReady = useCallback((mapInstance: Map) => {
+    mapInstanceRef.current = mapInstance;
     setMapReady(true);
     setRetryCount(0);
   }, []);
@@ -91,6 +96,22 @@ export default function MapView({
     console.error('[map-view] map error', error);
     setMapReady(false);
   }, []);
+
+  // Smoothly fly map to coordinates when user clicks a card or selects a region
+  useEffect(() => {
+    if (!mapInstanceRef.current || !flyToCoords) return;
+
+    try {
+      mapInstanceRef.current.flyTo({
+        center: flyToCoords,
+        zoom: 14.5,
+        essential: true,
+        duration: 1200,
+      });
+    } catch (err) {
+      console.warn('Map flyTo failed:', err);
+    }
+  }, [flyToCoords]);
 
   return (
     <div className="relative h-screen">

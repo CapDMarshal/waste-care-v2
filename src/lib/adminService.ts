@@ -115,6 +115,7 @@ export async function getAllReportsAdmin(statusFilter?: ReportStatus) {
       id,
       created_at,
       waste_type,
+      waste_volume,
       hazard_risk,
       location_category,
       status,

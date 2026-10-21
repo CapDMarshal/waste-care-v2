@@ -28,6 +28,7 @@ interface BottomSheetProps {
   showRouteButton?: boolean;
   showRoute?: boolean;
   onToggleRoute?: () => void;
+  children?: React.ReactNode;
 }
 
 export const BottomSheet: React.FC<BottomSheetProps> = ({
@@ -54,8 +55,10 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   showRouteButton = false,
   showRoute = false,
   onToggleRoute,
+  children,
 }) => {
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
+  const [snapState, setSnapState] = useState<'peek' | 'half' | 'full'>('half');
 
   // Debounce effect - update parent only after 500ms of no typing
   useEffect(() => {
@@ -73,91 +76,125 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
     setLocalSearchQuery(searchQuery);
   }, [searchQuery]);
 
+  const toggleSnap = () => {
+    setSnapState(prev => {
+      if (prev === 'peek') return 'half';
+      if (prev === 'half') return 'full';
+      return 'half';
+    });
+  };
+
+  const getTopPosition = () => {
+    if (!showWelcome) return '16vh';
+    if (snapState === 'peek') return 'calc(100vh - 170px)';
+    if (snapState === 'full') return '10vh';
+    return '46vh'; // half (default)
+  };
+
   if (!isOpen) return null;
 
   return (
     <>
       {/* Bottom Sheet */}
       <div
-        className={`fixed inset-x-0 bg-white dark:bg-slate-900 shadow-2xl transition-all duration-500 ease-in-out border-t-2 border-x-2 border-slate-300 dark:border-slate-750 ${showWelcome ? 'z-30' : 'z-50'
+        className={`fixed inset-x-0 bg-white dark:bg-slate-900 shadow-2xl transition-all duration-300 ease-out border-t-2 border-x-2 border-slate-300 dark:border-slate-750 ${showWelcome ? 'z-30' : 'z-50'
           }`}
         style={{
-          top: showWelcome ? 'calc(100vh - 280px)' : '20vh',
+          top: getTopPosition(),
           bottom: 0,
-          borderTopLeftRadius: '20px',
-          borderTopRightRadius: '20px',
+          borderTopLeftRadius: '24px',
+          borderTopRightRadius: '24px',
           overflow: 'hidden'
         }}
       >
+        {/* Handle bar with tap to snap */}
+        <div 
+          onClick={showWelcome ? toggleSnap : undefined}
+          className={`flex flex-col items-center justify-center pt-3 pb-2 select-none ${showWelcome ? 'cursor-pointer hover:opacity-80' : ''}`}
+          title={showWelcome ? (snapState === 'full' ? 'Kecilkan panel' : 'Perbesar panel') : undefined}
+        >
+          <div className="w-12 h-1 bg-gray-300 dark:bg-slate-700 rounded-full"></div>
+        </div>
+
         {showWelcome ? (
-          // Welcome Section Content
-          <div className="px-4 pt-6 pb-12">
-            {/* Handle bar */}
-            <div className="flex justify-center pb-4">
-              <div className="w-12 h-1 bg-gray-300 dark:bg-slate-700 rounded-full"></div>
+          // Welcome Section / Explore Nearby Reports Content
+          children ? (
+            <div 
+              className="px-4 pb-28 overflow-y-auto scroll-smooth"
+              style={{ maxHeight: `calc(100vh - ${getTopPosition()} - 30px)` }}
+            >
+              {children}
             </div>
-
-            <div className="space-y-3">
-              <div>
-                <h1 className="text-xl font-semibold text-orange-600 dark:text-orange-400 mb-1">
-                  Halo, {userName}
-                </h1>
-                <p className="text-sm text-gray-600 dark:text-slate-400">
-                  Berkontribusi untuk jelajah sampah sekitar
-                </p>
-              </div>
-
-              {/* Search Bar */}
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
-                  <svg className="w-4 h-4 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
+          ) : (
+            <div className="px-4 pt-2 pb-12">
+              <div className="space-y-3">
+                <div>
+                  <h1 className="text-xl font-semibold text-orange-600 dark:text-orange-400 mb-1">
+                    Halo, {userName}
+                  </h1>
+                  <p className="text-sm text-gray-600 dark:text-slate-400">
+                    Berkontribusi untuk jelajah sampah sekitar
+                  </p>
                 </div>
-                <input
-                  type="text"
-                  value={localSearchQuery}
-                  onChange={(e) => setLocalSearchQuery(e.target.value)}
-                  placeholder="Cari sampah di ..."
-                  className="w-full pl-9 pr-4 py-2.5 border border-gray-400 dark:border-slate-700 text-gray-600 dark:text-slate-200 rounded-lg bg-white dark:bg-slate-800 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
-                />
-              </div>
 
-              {/* Search Button */}
-              <Button
-                onClick={onSearchClick}
-                fullWidth
-                size='sm'
-                variant='primary'
-              >
-                Cari
-              </Button>
+                {/* Search Bar */}
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
+                    <svg className="w-4 h-4 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    value={localSearchQuery}
+                    onChange={(e) => setLocalSearchQuery(e.target.value)}
+                    placeholder="Cari sampah di ..."
+                    className="w-full pl-9 pr-4 py-2.5 border border-gray-400 dark:border-slate-700 text-gray-600 dark:text-slate-200 rounded-lg bg-white dark:bg-slate-800 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                  />
+                </div>
+
+                {/* Search Button */}
+                <Button
+                  onClick={onSearchClick}
+                  fullWidth
+                  size='sm'
+                  variant='primary'
+                >
+                  Cari
+                </Button>
+              </div>
             </div>
-          </div>
+          )
         ) : (
           // Waste Details Content
           <>
-            {/* Handle bar */}
-            <div className="flex justify-center pt-3 pb-2">
-              <div className="w-12 h-1 bg-gray-300 dark:bg-slate-700 rounded-full"></div>
-            </div>
-
-            {/* Header */}
+            {/* Header with Back to List Button */}
             <div className="px-4 pb-3 border-b border-gray-100 dark:border-slate-800">
+              <button
+                onClick={onClose}
+                className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors mb-2 cursor-pointer"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                </svg>
+                <span>Kembali ke Daftar Sampah Sekitar</span>
+              </button>
+
               <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h2 className="text-lg font-bold text-orange-500 dark:text-orange-400">
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white truncate">
                     {title}
                   </h2>
                   {description && (
-                    <p className="text-sm text-gray-600 dark:text-slate-400 mt-1">
+                    <p className="text-xs text-gray-600 dark:text-slate-400 mt-0.5 line-clamp-2">
                       {description}
                     </p>
                   )}
                 </div>
                 <button
                   onClick={onClose}
-                  className="p-1.5 ml-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors text-gray-400 dark:text-slate-400"
+                  className="p-1.5 ml-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors text-gray-400 dark:text-slate-400 shrink-0"
+                  aria-label="Tutup detail"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

@@ -7,6 +7,7 @@ import {
   LayoutDashboard, 
   FileText, 
   Flag, 
+  Flame,
   ShieldCheck, 
   LogOut, 
   Menu, 
@@ -32,6 +33,11 @@ export default function AdminSidebar({ pendingCount = 0 }: AdminSidebarProps) {
       label: 'Dashboard',
       icon: LayoutDashboard,
       exact: true,
+    },
+    {
+      href: '/admin/peta',
+      label: 'Peta Hotspot',
+      icon: Flame,
     },
     {
       href: '/admin/laporan',
